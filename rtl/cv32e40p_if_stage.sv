@@ -33,6 +33,17 @@ module cv32e40p_if_stage #(
 ) (
     input logic clk,
     input logic rst_n,
+    
+    //======// ASCON ENCRYPTION SECTION
+    // Core control signals to ascon_datapath
+	output logic       fifo_push_o,
+	output logic       fifo_pop_o,
+	output logic [1:0] fifo_read_pointer_o,
+	output logic [1:0] fifo_write_pointer_o,
+	output logic       instr_valid_if_o,
+	output logic       if_valid_o,
+    //======// END ASCON ENCRYPTION SECTION
+
 
     // Used to calculate the exception offsets
     input logic [23:0] m_trap_base_addr_i,
@@ -125,6 +136,12 @@ module cv32e40p_if_stage #(
   logic [31:0] instr_decompressed;
   logic        instr_compressed_int;
 
+  //======// ASCON ENCRYPTION SECTION
+  // Core control signals to ascon_datapath
+  assign instr_valid_if_o = instr_valid;
+  assign if_valid_o = if_valid;
+  //======// END ASCON ENCRYPTION SECTION
+
 
   // exception PC selection mux
   always_comb begin : EXC_PC_MUX
@@ -181,6 +198,14 @@ module cv32e40p_if_stage #(
   ) prefetch_buffer_i (
       .clk  (clk),
       .rst_n(rst_n),
+ 
+      //======// ASCON ENCRYPTION SECTION
+      // Core control signals to ascon_datapath
+      .fifo_push_o(fifo_push_o);
+      .fifo_pop_o(fifo_pop_o);
+      .fifo_read_pointer_o(fifo_read_pointer_o);
+      .fifo_write_pointer_o(fifo_write_pointer_o);
+      //======// END ASCON ENCRYPTION SECTION
 
       .req_i(req_i),
 

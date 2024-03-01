@@ -21,6 +21,13 @@ module cv32e40p_fifo #(
 ) (
     input logic clk_i,  // Clock
     input logic rst_ni,  // Asynchronous reset active low
+
+    //======// ASCON ENCRYPTION SECTION
+    // Core control signals to ascon_datapath
+	output logic [1:0] fifo_read_pointer_o,
+	output logic [1:0] fifo_write_pointer_o,
+    //======// END ASCON ENCRYPTION SECTION
+
     input logic flush_i,  // flush the queue
     input logic flush_but_first_i,  // flush the queue except the first instruction
     input logic testmode_i,  // test_mode to bypass clock gating
@@ -47,6 +54,12 @@ module cv32e40p_fifo #(
       status_cnt_n, status_cnt_q;  // this integer will be truncated by the synthesis tool
   // actual memory
   logic [FIFO_DEPTH - 1:0][DATA_WIDTH-1:0] mem_n, mem_q;
+
+  //======// ASCON ENCRYPTION SECTION
+  // Core control signals to ascon_datapath
+  assign fifo_read_pointer_o = read_pointer_q;
+  assign fifo_write_pointer_o = write_pointer_q;
+  //======// END ASCON ENCRYPTION SECTION
 
   assign cnt_o = status_cnt_q;
 

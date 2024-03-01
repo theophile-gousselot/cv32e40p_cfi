@@ -31,6 +31,14 @@ module cv32e40p_prefetch_buffer #(
     input logic clk,
     input logic rst_n,
 
+    //======// ASCON ENCRYPTION SECTION
+    // Core control signals to ascon_datapath
+	output logic       fifo_push_o,
+	output logic       fifo_pop_o,
+	output logic [1:0] fifo_read_pointer_o,
+	output logic [1:0] fifo_write_pointer_o,
+    //======// END ASCON ENCRYPTION SECTION
+
     input logic        req_i,
     input logic        branch_i,
     input logic [31:0] branch_addr_i,
@@ -78,6 +86,13 @@ module cv32e40p_prefetch_buffer #(
   logic                     resp_valid;
   logic [             31:0] resp_rdata;
   logic                     resp_err;  // Unused for now
+
+
+  //======// ASCON ENCRYPTION SECTION
+  // Core control signals to ascon_datapath
+  assign fifo_push_o = fifo_push;
+  assign fifo_pop_o = fifo_pop;
+  //======// END ASCON ENCRYPTION SECTION
 
   //////////////////////////////////////////////////////////////////////////////
   // Prefetch Controller
@@ -127,6 +142,11 @@ module cv32e40p_prefetch_buffer #(
   ) fifo_i (
       .clk_i            (clk),
       .rst_ni           (rst_n),
+      //======// ASCON ENCRYPTION SECTION
+      // Core control signals to ascon_datapath
+      .fifo_read_pointer_o(fifo_read_pointer_o);
+      .fifo_write_pointer_o(fifo_write_pointer_o);
+      //======// END ASCON ENCRYPTION SECTION
       .flush_i          (fifo_flush),
       .flush_but_first_i(fifo_flush_but_first),
       .testmode_i       (1'b0),

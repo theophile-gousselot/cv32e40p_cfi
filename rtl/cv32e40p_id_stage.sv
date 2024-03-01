@@ -51,6 +51,15 @@ module cv32e40p_id_stage
     input logic clk_ungated_i,  // Ungated clock
     input logic rst_n,
 
+    //======// ASCON ENCRYPTION SECTION
+    // Core control signals to ascon_datapath
+	output logic       id_valid_o,
+
+    // Core control signals to ascon_fsm
+	output logic [1:0] ctrl_transfer_insn_in_id_o,
+    //======// END ASCON ENCRYPTION SECTION
+
+
     input logic scan_cg_en_i,
 
     input  logic fetch_enable_i,
@@ -481,6 +490,13 @@ module cv32e40p_id_stage
   logic id_valid_q;
   logic minstret;
   logic perf_pipeline_stall;
+
+  //======// ASCON ENCRYPTION SECTION
+  // Core control signals to ascon_datapath
+  assign ctrl_transfer_insn_in_id_o = ctrl_transfer_insn_in_id;
+  //======// END ASCON ENCRYPTION SECTION
+
+
 
   assign instr = instr_rdata_i;
 

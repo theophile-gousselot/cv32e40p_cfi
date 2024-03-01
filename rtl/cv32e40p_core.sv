@@ -41,6 +41,25 @@ module cv32e40p_core
     input logic clk_i,
     input logic rst_ni,
 
+    //======// ASCON ENCRYPTION SECTION
+    // Core control signals to ascon_datapath
+	output logic       fifo_push_o,
+	output logic       fifo_pop_o,
+	output logic [1:0] fifo_read_pointer_o,
+	output logic [1:0] fifo_write_pointer_o,
+	output logic       instr_valid_if_o,
+	output logic       if_valid_o,
+	output logic       id_valid_o,
+	output logic       lsu_data_misaligned_o, // misaligned access was detected
+	output logic       mult_multicycle_o,
+
+    // Core control signals to ascon_fsm
+	output logic [1:0] ctrl_transfer_insn_in_id_o,
+	output logic       branch_in_ex_o,
+	output logic       branch_decision_o,
+	output logic       pc_set_o,
+    //======// END ASCON ENCRYPTION SECTION
+
     input logic pulp_clock_en_i,  // PULP clock enable (only used if PULP_CLUSTER = 1)
     input logic scan_cg_en_i,  // Enable all clock gates for testing
 
@@ -356,6 +375,20 @@ module cv32e40p_core
   logic [             31:0]       instr_addr_pmp;
   logic                           instr_err_pmp;
 
+
+  //======// ASCON ENCRYPTION SECTION
+  // Core control signals to ascon_datapath
+  assign id_valid_o = id_valid;
+  assign lsu_data_misaligned_o = data_misaligned;
+  assign mult_multicycle_o = mult_multicycle;
+
+  // Core control signals to ascon_fsm
+  assign branch_in_ex_o = branch_in_ex;
+  assign branch_decision_o = branch_decision;
+  assign pc_set_o = pc_set;
+  //======// END ASCON ENCRYPTION SECTION
+
+
   // Mux selector for vectored IRQ PC
   assign m_exc_vec_pc_mux_id = (mtvec_mode == 2'b0) ? 5'h0 : exc_cause;
   assign u_exc_vec_pc_mux_id = (utvec_mode == 2'b0) ? 5'h0 : exc_cause;
@@ -428,6 +461,16 @@ module cv32e40p_core
   ) if_stage_i (
       .clk  (clk),
       .rst_n(rst_ni),
+
+      //======// ASCON ENCRYPTION SECTION
+      // Core control signals to ascon_datapath
+      .fifo_push_o(fifo_push_o);
+      .fifo_pop_o(fifo_pop_o);
+      .fifo_read_pointer_o(fifo_read_pointer_o);
+      .fifo_write_pointer_o(fifo_write_pointer_o);
+      .instr_valid_if_o(instr_valid_if_o);
+      .if_valid_o(if_valid_o);
+      //======// END ASCON ENCRYPTION SECTION
 
       // boot address
       .boot_addr_i        (boot_addr_i[31:0]),
@@ -527,6 +570,11 @@ module cv32e40p_core
       .clk          (clk),  // Gated clock
       .clk_ungated_i(clk_i),  // Ungated clock
       .rst_n        (rst_ni),
+
+      //======// ASCON ENCRYPTION SECTION
+      // Core control signals to ascon_datapath
+      .ctrl_transfer_insn_in_id_o(ctrl_transfer_insn_in_id_o);
+      //======// END ASCON ENCRYPTION SECTION
 
       .scan_cg_en_i(scan_cg_en_i),
 
