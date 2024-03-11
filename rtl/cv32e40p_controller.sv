@@ -27,6 +27,7 @@
 // Description:    Main CPU controller of the processor                       //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_controller import cv32e40p_pkg::*;
 #(
@@ -212,7 +213,9 @@ module cv32e40p_controller import cv32e40p_pkg::*;
 
   logic data_err_q;
 
+/* verilator lint_off UNOPTFLAT */
   logic debug_mode_q, debug_mode_n;
+/* verilator lint_on UNOPTFLAT */
   logic ebrk_force_debug_mode;
   logic is_hwlp_illegal, is_hwlp_body;
   logic illegal_insn_q, illegal_insn_n;

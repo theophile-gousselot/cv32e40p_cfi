@@ -26,6 +26,7 @@
 //                 and hosts the register file.                               //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_id_stage
   import cv32e40p_pkg::*;
@@ -51,6 +52,7 @@ module cv32e40p_id_stage
     input logic clk_ungated_i,  // Ungated clock
     input logic rst_n,
 
+`ifdef ENCRYPT
     //======// ASCON ENCRYPTION SECTION
     // Core control signals to ascon_datapath
 	output logic       id_valid_o,
@@ -58,6 +60,7 @@ module cv32e40p_id_stage
     // Core control signals to ascon_fsm
 	output logic [1:0] ctrl_transfer_insn_in_id_o,
     //======// END ASCON ENCRYPTION SECTION
+`endif
 
 
     input logic scan_cg_en_i,
@@ -491,10 +494,12 @@ module cv32e40p_id_stage
   logic minstret;
   logic perf_pipeline_stall;
 
+`ifdef ENCRYPT
   //======// ASCON ENCRYPTION SECTION
   // Core control signals to ascon_datapath
   assign ctrl_transfer_insn_in_id_o = ctrl_transfer_insn_in_id;
   //======// END ASCON ENCRYPTION SECTION
+`endif
 
 
 
@@ -679,7 +684,9 @@ module cv32e40p_id_stage
       OP_B_REGB_OR_FWD: operand_b = operand_b_fw_id;
       OP_B_REGC_OR_FWD: operand_b = operand_c_fw_id;
       OP_B_IMM:         operand_b = imm_b;
+/* verilator lint_off WIDTH */
       OP_B_BMASK:       operand_b = $unsigned(operand_b_fw_id[4:0]);
+/* verilator lint_on WIDTH */
       default:          operand_b = operand_b_fw_id;
     endcase  // case (alu_op_b_mux_sel)
   end
@@ -1475,7 +1482,9 @@ module cv32e40p_id_stage
       data_reg_offset_ex_o   <= 2'b0;
       data_req_ex_o          <= 1'b0;
       data_load_event_ex_o   <= 1'b0;
+/* verilator lint_off WIDTH */
       atop_ex_o              <= 5'b0;
+/* verilator lint_on WIDTH */
 
       data_misaligned_ex_o   <= 1'b0;
 

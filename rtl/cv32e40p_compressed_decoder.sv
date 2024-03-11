@@ -23,6 +23,7 @@
 //                 Float extensions added                                     //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_compressed_decoder #(
     parameter FPU = 0

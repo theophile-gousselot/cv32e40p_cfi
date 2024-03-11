@@ -36,6 +36,7 @@
 //                 outstanding transactions.                                  //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_prefetch_controller #(
     parameter PULP_OBI = 0,  // Legacy PULP OBI behavior
@@ -111,7 +112,9 @@ module cv32e40p_prefetch_controller #(
   //////////////////////////////////////////////////////////////////////////////
 
   // Busy if there are ongoing (or potentially outstanding) transfers
+/* verilator lint_off WIDTH */
   assign busy_o = (cnt_q != 3'b000) || trans_valid_o;
+/* verilator lint_on WIDTH */
 
   //////////////////////////////////////////////////////////////////////////////
   // IF/ID interface

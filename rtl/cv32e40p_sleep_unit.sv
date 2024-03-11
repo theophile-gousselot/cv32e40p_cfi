@@ -52,6 +52,7 @@
 //                 - If pulp_clock_en_i == 1'b0, then data_gnt_i == 1'b1      //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_sleep_unit #(
     parameter PULP_CLUSTER = 0

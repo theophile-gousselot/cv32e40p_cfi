@@ -21,6 +21,7 @@
 // Description:    Find First One                                             //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_ff_one #(
     parameter LEN = 32
@@ -34,8 +35,12 @@ module cv32e40p_ff_one #(
   localparam NUM_LEVELS = $clog2(LEN);
 
   logic [          LEN-1:0][NUM_LEVELS-1:0] index_lut;
+/* verilator lint_off UNOPTFLAT */
   logic [2**NUM_LEVELS-1:0]                 sel_nodes;
+/* verilator lint_on UNOPTFLAT */
+/* verilator lint_off UNOPTFLAT */
   logic [2**NUM_LEVELS-1:0][NUM_LEVELS-1:0] index_nodes;
+/* verilator lint_on UNOPTFLAT */
 
 
   //////////////////////////////////////////////////////////////////////////////
@@ -45,7 +50,9 @@ module cv32e40p_ff_one #(
   generate
     genvar j;
     for (j = 0; j < LEN; j++) begin : gen_index_lut
+/* verilator lint_off WIDTH */
       assign index_lut[j] = $unsigned(j);
+/* verilator lint_on WIDTH */
     end
   endgenerate
 

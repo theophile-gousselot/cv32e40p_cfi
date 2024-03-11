@@ -22,6 +22,7 @@
 // Description:    Defines for various constants used by the processor core.  //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 package cv32e40p_pkg;
 

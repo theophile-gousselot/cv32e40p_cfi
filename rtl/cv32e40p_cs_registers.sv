@@ -26,6 +26,7 @@
 //                 Added Floating point support                               //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_cs_registers
   import cv32e40p_pkg::*;
@@ -541,7 +542,9 @@ module cv32e40p_cs_registers
         CSR_TSELECT, CSR_TDATA3, CSR_MCONTEXT, CSR_SCONTEXT: csr_rdata_int = 'b0;  // Always read 0
         CSR_TDATA1: csr_rdata_int = tmatch_control_rdata;
         CSR_TDATA2: csr_rdata_int = tmatch_value_rdata;
+/* verilator lint_off WIDTH */
         CSR_TINFO: csr_rdata_int = tinfo_types;
+/* verilator lint_on WIDTH */
 
         CSR_DCSR: csr_rdata_int = dcsr_q;  //
         CSR_DPC: csr_rdata_int = depc_q;
@@ -969,7 +972,9 @@ module cv32e40p_cs_registers
 
       if (FPU == 1) if (fflags_we_i) fflags_n = fflags_i | fflags_q;
 
+/* verilator lint_off CASEINCOMPLETE */
       case (csr_addr_i)
+/* verilator lint_on CASEINCOMPLETE */
         // fcsr: Floating-Point Control and Status Register (frm, fflags, fprec).
         CSR_FFLAGS: if (csr_we_int) fflags_n = (FPU == 1) ? csr_wdata_int[C_FFLAG-1:0] : '0;
         CSR_FRM:    if (csr_we_int) frm_n = (FPU == 1) ? csr_wdata_int[C_RM-1:0] : '0;
@@ -1502,17 +1507,17 @@ module cv32e40p_cs_registers
       end else begin : gen_implemented
         always_ff @(posedge clk, negedge rst_n)
           if (!rst_n) begin
-            mhpmcounter_q[cnt_gidx] <= 'b0;
+            mhpmcounter_q[cnt_gidx] = 'b0;
           end else begin
             if (PULP_PERF_COUNTERS && (cnt_gidx == 2 || cnt_gidx == 0)) begin
               mhpmcounter_q[cnt_gidx] <= 'b0;
             end else begin
               if (mhpmcounter_write_lower[cnt_gidx]) begin
-                mhpmcounter_q[cnt_gidx][31:0] <= csr_wdata_int;
+                mhpmcounter_q[cnt_gidx][31:0] = csr_wdata_int;
               end else if (mhpmcounter_write_upper[cnt_gidx]) begin
-                mhpmcounter_q[cnt_gidx][63:32] <= csr_wdata_int;
+                mhpmcounter_q[cnt_gidx][63:32] = csr_wdata_int;
               end else if (mhpmcounter_write_increment[cnt_gidx]) begin
-                mhpmcounter_q[cnt_gidx] <= mhpmcounter_increment[cnt_gidx];
+                mhpmcounter_q[cnt_gidx] = mhpmcounter_increment[cnt_gidx];
               end
             end
           end
@@ -1532,9 +1537,9 @@ module cv32e40p_cs_registers
           assign mhpmevent_q[evt_gidx][31:NUM_HPM_EVENTS] = 'b0;
         end
         always_ff @(posedge clk, negedge rst_n)
-          if (!rst_n) mhpmevent_q[evt_gidx][NUM_HPM_EVENTS-1:0] <= 'b0;
+          if (!rst_n) mhpmevent_q[evt_gidx][NUM_HPM_EVENTS-1:0] = 'b0;
           else
-            mhpmevent_q[evt_gidx][NUM_HPM_EVENTS-1:0] <= mhpmevent_n[evt_gidx][NUM_HPM_EVENTS-1:0];
+            mhpmevent_q[evt_gidx][NUM_HPM_EVENTS-1:0] = mhpmevent_n[evt_gidx][NUM_HPM_EVENTS-1:0];
       end
     end
   endgenerate
@@ -1550,8 +1555,8 @@ module cv32e40p_cs_registers
         assign mcounteren_q[en_gidx] = 'b0;
       end else begin : gen_implemented
         always_ff @(posedge clk, negedge rst_n)
-          if (!rst_n) mcounteren_q[en_gidx] <= 'b0;  // default disable
-          else mcounteren_q[en_gidx] <= mcounteren_n[en_gidx];
+          if (!rst_n) mcounteren_q[en_gidx] = 'b0;  // default disable
+          else mcounteren_q[en_gidx] = mcounteren_n[en_gidx];
       end
     end
   endgenerate
@@ -1565,8 +1570,8 @@ module cv32e40p_cs_registers
         assign mcountinhibit_q[inh_gidx] = 'b0;
       end else begin : gen_implemented
         always_ff @(posedge clk, negedge rst_n)
-          if (!rst_n) mcountinhibit_q[inh_gidx] <= 'b1;  // default disable
-          else mcountinhibit_q[inh_gidx] <= mcountinhibit_n[inh_gidx];
+          if (!rst_n) mcountinhibit_q[inh_gidx] = 'b1;  // default disable
+          else mcountinhibit_q[inh_gidx] = mcountinhibit_n[inh_gidx];
       end
     end
   endgenerate

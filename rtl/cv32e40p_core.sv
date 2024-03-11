@@ -27,10 +27,13 @@
 //                 and the FPU                                                //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_core
   import cv32e40p_apu_core_pkg::*;
 #(
+    parameter FIFO_DEPTH = 2,
+    parameter FIFO_ADDR_DEPTH = 1,
     parameter PULP_XPULP          =  0,                   // PULP ISA Extension (incl. custom CSRs and hardware loop, excl. p.elw)
     parameter PULP_CLUSTER = 0,  // PULP Cluster interface (incl. p.elw)
     parameter FPU = 0,  // Floating Point Unit (interfaced via APU interface)
@@ -41,12 +44,13 @@ module cv32e40p_core
     input logic clk_i,
     input logic rst_ni,
 
+`ifdef ENCRYPT
     //======// ASCON ENCRYPTION SECTION
     // Core control signals to ascon_datapath
 	output logic       fifo_push_o,
 	output logic       fifo_pop_o,
-	output logic [1:0] fifo_read_pointer_o,
-	output logic [1:0] fifo_write_pointer_o,
+	output logic [FIFO_ADDR_DEPTH-1:0] fifo_read_pointer_o,
+	output logic [FIFO_ADDR_DEPTH-1:0] fifo_write_pointer_o,
 	output logic       instr_valid_if_o,
 	output logic       if_valid_o,
 	output logic       id_valid_o,
@@ -59,6 +63,7 @@ module cv32e40p_core
 	output logic       branch_decision_o,
 	output logic       pc_set_o,
     //======// END ASCON ENCRYPTION SECTION
+`endif
 
     input logic pulp_clock_en_i,  // PULP clock enable (only used if PULP_CLUSTER = 1)
     input logic scan_cg_en_i,  // Enable all clock gates for testing
@@ -75,7 +80,7 @@ module cv32e40p_core
     input  logic        instr_gnt_i,
     input  logic        instr_rvalid_i,
     output logic [31:0] instr_addr_o,
-    input  logic [31:0] instr_rdata_i,
+    input  logic [31:0] instr_rdata_i/*verilator public*/,
 
     // Data memory interface
     output logic        data_req_o,
@@ -162,7 +167,7 @@ module cv32e40p_core
 
   logic [ 1:0] trap_addr_mux;
 
-  logic [31:0] pc_if;  // Program counter in IF stage
+  logic [31:0] pc_if/*verilator public*/;  // Program counter in IF stage
   logic [31:0] pc_id;  // Program counter in ID stage
 
   // ID performance counter signals
@@ -376,6 +381,7 @@ module cv32e40p_core
   logic                           instr_err_pmp;
 
 
+`ifdef ENCRYPT
   //======// ASCON ENCRYPTION SECTION
   // Core control signals to ascon_datapath
   assign id_valid_o = id_valid;
@@ -387,6 +393,7 @@ module cv32e40p_core
   assign branch_decision_o = branch_decision;
   assign pc_set_o = pc_set;
   //======// END ASCON ENCRYPTION SECTION
+`endif
 
 
   // Mux selector for vectored IRQ PC
@@ -454,23 +461,27 @@ module cv32e40p_core
   //                                              //
   //////////////////////////////////////////////////
   cv32e40p_if_stage #(
-      .PULP_XPULP (PULP_XPULP),
-      .PULP_OBI   (PULP_OBI),
-      .PULP_SECURE(PULP_SECURE),
-      .FPU        (FPU)
+      .FIFO_DEPTH      (FIFO_DEPTH),
+      .FIFO_ADDR_DEPTH (FIFO_ADDR_DEPTH),
+      .PULP_XPULP      (PULP_XPULP),
+      .PULP_OBI        (PULP_OBI),
+      .PULP_SECURE     (PULP_SECURE),
+      .FPU             (FPU)
   ) if_stage_i (
       .clk  (clk),
       .rst_n(rst_ni),
 
+`ifdef ENCRYPT
       //======// ASCON ENCRYPTION SECTION
       // Core control signals to ascon_datapath
-      .fifo_push_o(fifo_push_o);
-      .fifo_pop_o(fifo_pop_o);
-      .fifo_read_pointer_o(fifo_read_pointer_o);
-      .fifo_write_pointer_o(fifo_write_pointer_o);
-      .instr_valid_if_o(instr_valid_if_o);
-      .if_valid_o(if_valid_o);
+      .fifo_push_o(fifo_push_o),
+      .fifo_pop_o(fifo_pop_o),
+      .fifo_read_pointer_o(fifo_read_pointer_o),
+      .fifo_write_pointer_o(fifo_write_pointer_o),
+      .instr_valid_if_o(instr_valid_if_o),
+      .if_valid_o(if_valid_o),
       //======// END ASCON ENCRYPTION SECTION
+`endif
 
       // boot address
       .boot_addr_i        (boot_addr_i[31:0]),
@@ -571,10 +582,12 @@ module cv32e40p_core
       .clk_ungated_i(clk_i),  // Ungated clock
       .rst_n        (rst_ni),
 
+`ifdef ENCRYPT
       //======// ASCON ENCRYPTION SECTION
       // Core control signals to ascon_datapath
-      .ctrl_transfer_insn_in_id_o(ctrl_transfer_insn_in_id_o);
+      .ctrl_transfer_insn_in_id_o(ctrl_transfer_insn_in_id_o),
       //======// END ASCON ENCRYPTION SECTION
+`endif
 
       .scan_cg_en_i(scan_cg_en_i),
 

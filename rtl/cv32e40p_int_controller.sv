@@ -20,6 +20,7 @@
 // Description:    Interrupt Controller of the pipelined processor            //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_int_controller
   import cv32e40p_pkg::*;
@@ -119,6 +120,7 @@ module cv32e40p_int_controller
     else if (irq_local_qual[12])
       irq_id_ctrl_o = 5'd12;  // Reserved  (default masked out with IRQ_MASK)
 
+/* verilator lint_off WIDTH */
     else if (irq_local_qual[CSR_MEIX_BIT]) irq_id_ctrl_o = CSR_MEIX_BIT;  // MEI, irq_i[11]
     else if (irq_local_qual[CSR_MSIX_BIT]) irq_id_ctrl_o = CSR_MSIX_BIT;  // MSI, irq_i[3]
     else if (irq_local_qual[CSR_MTIX_BIT]) irq_id_ctrl_o = CSR_MTIX_BIT;  // MTI, irq_i[7]
@@ -145,6 +147,7 @@ module cv32e40p_int_controller
       irq_id_ctrl_o = 5'd4;  // Reserved: UTI (default masked out with IRQ_MASK)
 
     else irq_id_ctrl_o = CSR_MTIX_BIT;  // Value not relevant
+/* verilator lint_on WIDTH */
   end
 
   assign irq_sec_ctrl_o = irq_sec_q;

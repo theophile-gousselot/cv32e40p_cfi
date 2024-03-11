@@ -28,6 +28,7 @@
 //                 from the X register file                                   //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_register_file #(
     parameter ADDR_WIDTH = 5,

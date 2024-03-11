@@ -22,6 +22,7 @@
 // Description:    Advanced MAC unit for PULP.                                //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_mult
   import cv32e40p_pkg::*;
@@ -67,8 +68,12 @@ module cv32e40p_mult
   //                                                           //
   ///////////////////////////////////////////////////////////////
 
+/* verilator lint_off UNOPTFLAT */
   logic [16:0] short_op_a;
+/* verilator lint_on UNOPTFLAT */
+/* verilator lint_off UNOPTFLAT */
   logic [16:0] short_op_b;
+/* verilator lint_on UNOPTFLAT */
   logic [32:0] short_op_c;
   logic [33:0] short_mul;
   logic [33:0] short_mac;
@@ -105,6 +110,7 @@ module cv32e40p_mult
   assign short_op_a[16] = short_signed[0] & short_op_a[15];
   assign short_op_b[16] = short_signed[1] & short_op_b[15];
 
+/* verilator lint_off WIDTH */
   assign short_op_c = mulh_active ? $signed({mulh_carry_q, op_c_i}) : $signed(op_c_i);
 
   assign short_mul = $signed(short_op_a) * $signed(short_op_b);
@@ -137,7 +143,9 @@ module cv32e40p_mult
     mulh_clearcarry  = 1'b0;
     multicycle_o     = 1'b0;
 
+/* verilator lint_off CASEINCOMPLETE */
     case (mulh_CS)
+/* verilator lint_on CASEINCOMPLETE */
       IDLE_MULT: begin
         mulh_active = 1'b0;
         mulh_ready  = 1'b1;
@@ -310,6 +318,7 @@ module cv32e40p_mult
       accumulator
   );
   assign clpx_shift_result = $signed(dot_short_result[31:15]) >>> clpx_shift_i;
+/* verilator lint_on WIDTH */
 
   ////////////////////////////////////////////////////////
   //   ____                 _ _     __  __              //

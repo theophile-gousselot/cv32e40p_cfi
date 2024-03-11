@@ -24,8 +24,11 @@
 //                 buffering (sampling) of the read instruction               //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_if_stage #(
+    parameter FIFO_DEPTH = 2,
+    parameter FIFO_ADDR_DEPTH = 1,
     parameter PULP_XPULP      = 0,                        // PULP ISA Extension (including PULP specific CSRs and hardware loop, excluding p.elw)
     parameter PULP_OBI = 0,  // Legacy PULP OBI behavior
     parameter PULP_SECURE = 0,
@@ -34,15 +37,17 @@ module cv32e40p_if_stage #(
     input logic clk,
     input logic rst_n,
     
+`ifdef ENCRYPT
     //======// ASCON ENCRYPTION SECTION
     // Core control signals to ascon_datapath
 	output logic       fifo_push_o,
 	output logic       fifo_pop_o,
-	output logic [1:0] fifo_read_pointer_o,
-	output logic [1:0] fifo_write_pointer_o,
+	output logic [FIFO_ADDR_DEPTH-1:0] fifo_read_pointer_o,
+	output logic [FIFO_ADDR_DEPTH-1:0] fifo_write_pointer_o,
 	output logic       instr_valid_if_o,
 	output logic       if_valid_o,
     //======// END ASCON ENCRYPTION SECTION
+`endif
 
 
     // Used to calculate the exception offsets
@@ -136,11 +141,13 @@ module cv32e40p_if_stage #(
   logic [31:0] instr_decompressed;
   logic        instr_compressed_int;
 
+`ifdef ENCRYPT
   //======// ASCON ENCRYPTION SECTION
   // Core control signals to ascon_datapath
   assign instr_valid_if_o = instr_valid;
   assign if_valid_o = if_valid;
   //======// END ASCON ENCRYPTION SECTION
+`endif
 
 
   // exception PC selection mux
@@ -193,19 +200,23 @@ module cv32e40p_if_stage #(
 
   // prefetch buffer, caches a fixed number of instructions
   cv32e40p_prefetch_buffer #(
-      .PULP_OBI  (PULP_OBI),
-      .PULP_XPULP(PULP_XPULP)
+      .FIFO_DEPTH      (FIFO_DEPTH),
+      .FIFO_ADDR_DEPTH (FIFO_ADDR_DEPTH),
+      .PULP_OBI        (PULP_OBI),
+      .PULP_XPULP      (PULP_XPULP)
   ) prefetch_buffer_i (
       .clk  (clk),
       .rst_n(rst_n),
  
+`ifdef ENCRYPT
       //======// ASCON ENCRYPTION SECTION
       // Core control signals to ascon_datapath
-      .fifo_push_o(fifo_push_o);
-      .fifo_pop_o(fifo_pop_o);
-      .fifo_read_pointer_o(fifo_read_pointer_o);
-      .fifo_write_pointer_o(fifo_write_pointer_o);
+      .fifo_push_o(fifo_push_o),
+      .fifo_pop_o(fifo_pop_o),
+      .fifo_read_pointer_o(fifo_read_pointer_o),
+      .fifo_write_pointer_o(fifo_write_pointer_o),
       //======// END ASCON ENCRYPTION SECTION
+`endif
 
       .req_i(req_i),
 

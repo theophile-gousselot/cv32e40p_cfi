@@ -24,6 +24,7 @@
 // Description:    Arithmetic logic unit of the pipelined processor           //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_alu
   import cv32e40p_pkg::*;
@@ -136,7 +137,9 @@ module cv32e40p_alu
       // special case for subtractions and absolute number calculations
       adder_in_b[0] = 1'b1;
 
+/* verilator lint_off CASEINCOMPLETE */
       case (vector_mode_i)
+/* verilator lint_on CASEINCOMPLETE */
         VEC_MODE16: begin
           adder_in_b[18] = 1'b1;
         end
@@ -150,7 +153,9 @@ module cv32e40p_alu
 
     end else begin
       // take care of partitioning the adder for the addition case
+/* verilator lint_off CASEINCOMPLETE */
       case (vector_mode_i)
+/* verilator lint_on CASEINCOMPLETE */
         VEC_MODE16: begin
           adder_in_a[18] = 1'b0;
         end
@@ -210,6 +215,7 @@ module cv32e40p_alu
   logic [15:0] clpx_shift_ex;
 
   // shifter is also used for preparing operand for division
+/* verilator lint_off WIDTH */
   assign shift_amt = div_valid ? div_shift : operand_b_i;
 
   // by reversing the bits of the input, we also have to reverse the order of shift amounts
@@ -298,6 +304,7 @@ module cv32e40p_alu
       default: // VEC_MODE32
       begin
         shift_right_result = shift_op_a_32 >> shift_amt_int[4:0];
+/* verilator lint_on WIDTH */
       end
     endcase
     ;  // case (vec_mode_i)
@@ -749,7 +756,9 @@ module cv32e40p_alu
   always_comb begin
     ff_input = '0;
 
+/* verilator lint_off CASEINCOMPLETE */
     case (operator_i)
+/* verilator lint_on CASEINCOMPLETE */
       ALU_FF1: ff_input = operand_a_i;
 
       ALU_DIVU, ALU_REMU, ALU_FL1: ff_input = operand_a_rev;
@@ -879,7 +888,9 @@ module cv32e40p_alu
   ////////////////////////////////////////////////////
 
   logic [31:0] result_div;
+/* verilator lint_off UNOPTFLAT */
   logic        div_ready;
+/* verilator lint_on UNOPTFLAT */
   logic        div_signed;
   logic        div_op_a_signed;
   logic [ 5:0] div_shift_int;

@@ -22,6 +22,7 @@
 //              Andreas Traber    (atraber@iis.ee.ethz.ch)
 //
 ///////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_alu_div #(
     parameter C_WIDTH     = 32,

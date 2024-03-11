@@ -21,6 +21,7 @@
 // Description:    Count the number of '1's in a word                         //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_popcnt (
     input  logic [31:0] in_i,

@@ -23,21 +23,26 @@
 // input port: send address one cycle before the data
 // clear_i clears the FIFO for the following cycle. in_addr_i can be sent in
 // this cycle already
+`timescale 1ns / 1ps
 
 module cv32e40p_prefetch_buffer #(
+    parameter FIFO_DEPTH = 2,
+    parameter FIFO_ADDR_DEPTH = 1,
     parameter PULP_OBI = 0,  // Legacy PULP OBI behavior
     parameter PULP_XPULP = 1                 // PULP ISA Extension (including PULP specific CSRs and hardware loop, excluding p.elw)
 ) (
     input logic clk,
     input logic rst_n,
 
+`ifdef ENCRYPT
     //======// ASCON ENCRYPTION SECTION
     // Core control signals to ascon_datapath
 	output logic       fifo_push_o,
 	output logic       fifo_pop_o,
-	output logic [1:0] fifo_read_pointer_o,
-	output logic [1:0] fifo_write_pointer_o,
+	output logic [FIFO_ADDR_DEPTH-1:0] fifo_read_pointer_o,
+	output logic [FIFO_ADDR_DEPTH-1:0] fifo_write_pointer_o,
     //======// END ASCON ENCRYPTION SECTION
+`endif
 
     input logic        req_i,
     input logic        branch_i,
@@ -65,8 +70,9 @@ module cv32e40p_prefetch_buffer #(
   // FIFO_DEPTH controls also the number of outstanding memory requests
   // FIFO_DEPTH must be greater than 1 to respect assertion in prefetch controller
   // FIFO_DEPTH must be a power of 2 (because of the FIFO implementation)
-  localparam FIFO_DEPTH                     = 2; //must be greater or equal to 2 //Set at least to 3 to avoid stalls compared to the master branch
-  localparam int unsigned FIFO_ADDR_DEPTH = $clog2(FIFO_DEPTH);
+  //localparam FIFO_DEPTH                     = 2; //must be greater or equal to 2 //Set at least to 3 to avoid stalls compared to the master branch
+  // move to cv32e40p_core parameter input
+  //localparam int unsigned FIFO_ADDR_DEPTH = $clog2(FIFO_DEPTH);
 
   // Transaction request (between cv32e40p_prefetch_controller and cv32e40p_obi_interface)
   logic                     trans_valid;
@@ -88,11 +94,13 @@ module cv32e40p_prefetch_buffer #(
   logic                     resp_err;  // Unused for now
 
 
+`ifdef ENCRYPT
   //======// ASCON ENCRYPTION SECTION
   // Core control signals to ascon_datapath
   assign fifo_push_o = fifo_push;
   assign fifo_pop_o = fifo_pop;
   //======// END ASCON ENCRYPTION SECTION
+`endif
 
   //////////////////////////////////////////////////////////////////////////////
   // Prefetch Controller
@@ -142,11 +150,15 @@ module cv32e40p_prefetch_buffer #(
   ) fifo_i (
       .clk_i            (clk),
       .rst_ni           (rst_n),
+
+`ifdef ENCRYPT
       //======// ASCON ENCRYPTION SECTION
       // Core control signals to ascon_datapath
-      .fifo_read_pointer_o(fifo_read_pointer_o);
-      .fifo_write_pointer_o(fifo_write_pointer_o);
+      .fifo_read_pointer_o(fifo_read_pointer_o),
+      .fifo_write_pointer_o(fifo_write_pointer_o),
       //======// END ASCON ENCRYPTION SECTION
+`endif
+
       .flush_i          (fifo_flush),
       .flush_but_first_i(fifo_flush_but_first),
       .testmode_i       (1'b0),

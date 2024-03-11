@@ -28,6 +28,7 @@
 //                 APU_DISP: offloads instructions to the shared unit.        //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_ex_stage
   import cv32e40p_pkg::*;

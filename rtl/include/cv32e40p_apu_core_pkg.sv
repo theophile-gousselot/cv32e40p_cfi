@@ -18,6 +18,7 @@
 // Description:    core package of RISC-V core for shared APU                 //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 package cv32e40p_apu_core_pkg;
 

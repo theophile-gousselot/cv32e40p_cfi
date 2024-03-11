@@ -21,6 +21,7 @@
 // Description:    Dispatcher for sending instructions to the Marx            //
 //                 interconnect.                                              //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_apu_disp (
     input logic clk_i,

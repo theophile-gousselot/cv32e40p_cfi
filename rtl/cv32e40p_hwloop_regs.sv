@@ -21,6 +21,7 @@
 //                 c) decrement counter if hwloop taken                       //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_hwloop_regs #(
     parameter N_REGS     = 2,

@@ -22,6 +22,7 @@
 //                 processor stalls, and to align bytes and halfwords         //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_load_store_unit #(
     parameter PULP_OBI = 0  // Legacy PULP OBI behavior
@@ -329,7 +330,9 @@ module cv32e40p_load_store_unit #(
     data_misaligned_o = 1'b0;
 
     if ((data_req_ex_i == 1'b1) && (data_misaligned_ex_i == 1'b0)) begin
+/* verilator lint_off CASEINCOMPLETE */
       case (data_type_ex_i)
+/* verilator lint_on CASEINCOMPLETE */
         2'b00: // word
         begin
           if (data_addr_int[1:0] != 2'b00) data_misaligned_o = 1'b1;

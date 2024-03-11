@@ -19,6 +19,7 @@
 // Language:       SystemVerilog                                              //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_aligner (
     input logic clk,
@@ -98,8 +99,9 @@ module cv32e40p_aligner (
     update_state    = 1'b0;
     next_state      = state;
 
-
+/* verilator lint_off CASEINCOMPLETE */
     case (state)
+/* verilator lint_on CASEINCOMPLETE */
       ALIGNED32: begin
         if (fetch_rdata_i[1:0] == 2'b11) begin
           /*

@@ -11,6 +11,7 @@
 // Author: Florian Zaruba <zarubaf@iis.ee.ethz.ch>
 
 // Copy of fifo_v3 from https://github.com/pulp-platform/common_cells b2a4b2d3decdfc152ad9b4564a48ed3b2649fd6c
+`timescale 1ns / 1ps
 
 module cv32e40p_fifo #(
     parameter bit FALL_THROUGH = 1'b0,  // fifo is in fall-through mode
@@ -22,11 +23,13 @@ module cv32e40p_fifo #(
     input logic clk_i,  // Clock
     input logic rst_ni,  // Asynchronous reset active low
 
+`ifdef ENCRYPT
     //======// ASCON ENCRYPTION SECTION
     // Core control signals to ascon_datapath
 	output logic [1:0] fifo_read_pointer_o,
 	output logic [1:0] fifo_write_pointer_o,
     //======// END ASCON ENCRYPTION SECTION
+`endif
 
     input logic flush_i,  // flush the queue
     input logic flush_but_first_i,  // flush the queue except the first instruction
@@ -55,11 +58,13 @@ module cv32e40p_fifo #(
   // actual memory
   logic [FIFO_DEPTH - 1:0][DATA_WIDTH-1:0] mem_n, mem_q;
 
+`ifdef ENCRYPT
   //======// ASCON ENCRYPTION SECTION
   // Core control signals to ascon_datapath
   assign fifo_read_pointer_o = read_pointer_q;
   assign fifo_write_pointer_o = write_pointer_q;
   //======// END ASCON ENCRYPTION SECTION
+`endif
 
   assign cnt_o = status_cnt_q;
 
@@ -138,7 +143,9 @@ module cv32e40p_fifo #(
         flush_but_first_i: begin
           read_pointer_q  <= (status_cnt_q > 0) ? read_pointer_q : '0;
           write_pointer_q <= (status_cnt_q > 0) ? read_pointer_q + 1 : '0;
+/* verilator lint_off WIDTH */
           status_cnt_q    <= (status_cnt_q > 0) ? 1'b1 : '0;
+/* verilator lint_on WIDTH */
         end
         // If we are not flushing, update the pointers
         default: begin

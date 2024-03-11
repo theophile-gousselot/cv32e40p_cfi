@@ -34,6 +34,7 @@
 //                 https://github.com/pulp-platform/fpnew/                    //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 package cv32e40p_fpu_pkg;
 

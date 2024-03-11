@@ -24,6 +24,7 @@
 // Description:    Decoder                                                    //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
 module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*; import cv32e40p_fpu_pkg::*;
 #(
@@ -505,6 +506,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
             prepost_useincr_o = 1'b0; // only use alu_operand_a as address (not a+b)
             alu_op_a_mux_sel_o = OP_A_REGA_OR_FWD;
 
+/* verilator lint_off WIDTH */
             data_sign_extension_o = 1'b1;
 
             // Apply AMO instruction at `atop_o`.
@@ -1841,6 +1843,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
             cv32e40p_fpu_pkg::FP16    : apu_lat_o = (C_LAT_FP16<2)    ? C_LAT_FP16+1    : 2'h3;
             cv32e40p_fpu_pkg::FP16ALT : apu_lat_o = (C_LAT_FP16ALT<2) ? C_LAT_FP16ALT+1 : 2'h3;
             cv32e40p_fpu_pkg::FP8     : apu_lat_o = (C_LAT_FP8<2)     ? C_LAT_FP8+1     : 2'h3;
+/* verilator lint_on WIDTH */
             default : ;
           endcase
 
