@@ -54,9 +54,6 @@ module cv32e40p_id_stage
 
 `ifdef ENCRYPT
     //======// ASCON ENCRYPTION SECTION
-    // Core control signals to ascon_datapath
-	output logic       id_valid_o,
-
     // Core control signals to ascon_fsm
 	output logic [1:0] ctrl_transfer_insn_in_id_o,
     //======// END ASCON ENCRYPTION SECTION

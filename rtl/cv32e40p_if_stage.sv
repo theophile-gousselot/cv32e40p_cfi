@@ -125,7 +125,9 @@ module cv32e40p_if_stage #(
 
   logic        fetch_valid;
   logic        fetch_ready;
+/* verilator lint_off UNOPTFLAT */
   logic [31:0] fetch_rdata;
+/* verilator lint_on UNOPTFLAT */
 
   logic [31:0] exc_pc;
 

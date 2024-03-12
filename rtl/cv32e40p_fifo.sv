@@ -26,8 +26,8 @@ module cv32e40p_fifo #(
 `ifdef ENCRYPT
     //======// ASCON ENCRYPTION SECTION
     // Core control signals to ascon_datapath
-	output logic [1:0] fifo_read_pointer_o,
-	output logic [1:0] fifo_write_pointer_o,
+	output logic [ADDR_DEPTH-1:0] fifo_read_pointer_o,
+	output logic [ADDR_DEPTH-1:0] fifo_write_pointer_o,
     //======// END ASCON ENCRYPTION SECTION
 `endif
 
