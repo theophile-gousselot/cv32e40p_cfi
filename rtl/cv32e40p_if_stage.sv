@@ -46,6 +46,9 @@ module cv32e40p_if_stage #(
 	output logic [FIFO_ADDR_DEPTH-1:0] fifo_write_pointer_o,
 	output logic       instr_valid_if_o,
 	output logic       if_valid_o,
+	output logic       aligner_update_state_o,
+    output logic [31:0] prefetch_instr_rdata_cipher_o,
+    input logic [31:0] ascon_instr_rdata_plain_i,
     //======// END ASCON ENCRYPTION SECTION
 `endif
 
@@ -75,11 +78,11 @@ module cv32e40p_if_stage #(
 
     // Output of IF Pipeline stage
     output logic instr_valid_id_o,  // instruction in IF/ID pipeline is valid
-    output logic       [31:0] instr_rdata_id_o,      // read instruction is sampled and sent to ID stage for decoding
+    output logic       [31:0] instr_rdata_id_o/*verilator public*/,      // read instruction is sampled and sent to ID stage for decoding
     output logic is_compressed_id_o,  // compressed decoder thinks this is a compressed instruction
     output logic illegal_c_insn_id_o,  // compressed decoder thinks this is an invalid instruction
     output logic [31:0] pc_if_o,
-    output logic [31:0] pc_id_o,
+    output logic [31:0] pc_id_o/*verilator public*/,
     output logic is_fetch_failed_o,
 
     // Forwarding ports - control signals
@@ -126,6 +129,7 @@ module cv32e40p_if_stage #(
   logic        fetch_valid;
   logic        fetch_ready;
 /* verilator lint_off UNOPTFLAT */
+  logic [31:0] prefetch_fetch_rdata;
   logic [31:0] fetch_rdata;
 /* verilator lint_on UNOPTFLAT */
 
@@ -136,7 +140,9 @@ module cv32e40p_if_stage #(
   logic        fetch_failed;
 
   logic        aligner_ready;
+/* verilator lint_off UNOPTFLAT */
   logic        instr_valid;
+/* verilator lint_on UNOPTFLAT */
 
   logic        illegal_c_insn;
   logic [31:0] instr_aligned;
@@ -148,7 +154,12 @@ module cv32e40p_if_stage #(
   // Core control signals to ascon_datapath
   assign instr_valid_if_o = instr_valid;
   assign if_valid_o = if_valid;
+
+  assign prefetch_instr_rdata_cipher_o = prefetch_fetch_rdata;
+  assign fetch_rdata = ascon_instr_rdata_plain_i;
   //======// END ASCON ENCRYPTION SECTION
+`else
+  assign fetch_rdata = prefetch_fetch_rdata;
 `endif
 
 
@@ -230,7 +241,7 @@ module cv32e40p_if_stage #(
 
       .fetch_ready_i(fetch_ready),
       .fetch_valid_o(fetch_valid),
-      .fetch_rdata_o(fetch_rdata),
+      .fetch_rdata_o(prefetch_fetch_rdata),
 
       // goes to instruction memory / instruction cache
       .instr_req_o    (instr_req_o),
@@ -294,6 +305,9 @@ module cv32e40p_if_stage #(
   cv32e40p_aligner aligner_i (
       .clk             (clk),
       .rst_n           (rst_n),
+`ifdef ENCRYPT
+      .aligner_update_state_o(aligner_update_state_o),
+`endif
       .fetch_valid_i   (fetch_valid),
       .aligner_ready_o (aligner_ready),
       .if_valid_i      (if_valid),

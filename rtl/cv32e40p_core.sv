@@ -1,4 +1,4 @@
-// Copyright 2018 ETH Zurich and University of Bologna.
+// Copyright 2017 ETH Zurich and University of Bologna.
 // Copyright and related rights are licensed under the Solderpad Hardware
 // License, Version 0.51 (the "License"); you may not use this file except in
 // compliance with the License.  You may obtain a copy of the License at
@@ -56,12 +56,17 @@ module cv32e40p_core
 	output logic       id_valid_o,
 	output logic       lsu_data_misaligned_o, // misaligned access was detected
 	output logic       mult_multicycle_o,
+	output logic       aligner_update_state_o,
 
     // Core control signals to ascon_fsm
 	output logic [1:0] ctrl_transfer_insn_in_id_o,
 	output logic       branch_in_ex_o,
 	output logic       branch_decision_o,
 	output logic       pc_set_o,
+
+    // Instr cipher and plain
+    output logic [31:0] prefetch_instr_rdata_cipher_o,
+    input logic [31:0] ascon_instr_rdata_plain_i,
     //======// END ASCON ENCRYPTION SECTION
 `endif
 
@@ -80,7 +85,7 @@ module cv32e40p_core
     input  logic        instr_gnt_i,
     input  logic        instr_rvalid_i,
     output logic [31:0] instr_addr_o,
-    input  logic [31:0] instr_rdata_i/*verilator public*/,
+    input  logic [31:0] instr_rdata_i,
 
     // Data memory interface
     output logic        data_req_o,
@@ -480,6 +485,9 @@ module cv32e40p_core
       .fifo_write_pointer_o(fifo_write_pointer_o),
       .instr_valid_if_o(instr_valid_if_o),
       .if_valid_o(if_valid_o),
+	  .prefetch_instr_rdata_cipher_o(prefetch_instr_rdata_cipher_o),
+	  .ascon_instr_rdata_plain_i(ascon_instr_rdata_plain_i),
+      .aligner_update_state_o(aligner_update_state_o),
       //======// END ASCON ENCRYPTION SECTION
 `endif
 

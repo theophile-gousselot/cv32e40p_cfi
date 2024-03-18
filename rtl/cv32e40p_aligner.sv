@@ -25,6 +25,12 @@ module cv32e40p_aligner (
     input logic clk,
     input logic rst_n,
 
+`ifdef ENCRYPT
+    //======// ASCON ENCRYPTION SECTION
+	output logic       aligner_update_state_o,
+    //======// END ASCON ENCRYPTION SECTION
+`endif
+
     input  logic fetch_valid_i,
     output logic aligner_ready_o,  //prevents overwriting the fethced instruction
 
@@ -58,6 +64,10 @@ module cv32e40p_aligner (
   logic update_state;
   logic [31:0] pc_plus4, pc_plus2;
   logic aligner_ready_q, hwlp_update_pc_q;
+
+`ifdef ENCRYPT
+  assign aligner_update_state_o = update_state;
+`endif
 
   assign pc_o     = pc_q;
 
