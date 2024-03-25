@@ -84,8 +84,8 @@ module cv32e40p_core
     output logic        instr_req_o,
     input  logic        instr_gnt_i,
     input  logic        instr_rvalid_i,
-    output logic [31:0] instr_addr_o,
-    input  logic [31:0] instr_rdata_i,
+    output logic [31:0] instr_addr_o/*verilator public*/,
+    input  logic [31:0] instr_rdata_i/*verilator public*/,
 
     // Data memory interface
     output logic        data_req_o,
@@ -156,7 +156,7 @@ module cv32e40p_core
 
   // IF/ID signals
   logic        instr_valid_id;
-  logic [31:0] instr_rdata_id;  // Instruction sampled inside IF stage
+  logic [31:0] instr_rdata_id/*verilator public*/;  // Instruction sampled inside IF stage
   logic        is_compressed_id;
   logic        illegal_c_insn_id;
   logic        is_fetch_failed_id;
@@ -173,7 +173,7 @@ module cv32e40p_core
   logic [ 1:0] trap_addr_mux;
 
   logic [31:0] pc_if/*verilator public*/;  // Program counter in IF stage
-  logic [31:0] pc_id;  // Program counter in ID stage
+  logic [31:0] pc_id/*verilator public*/;  // Program counter in ID stage
 
   // ID performance counter signals
   logic        is_decoding;
@@ -357,7 +357,7 @@ module cv32e40p_core
   logic                           mhpmevent_minstret;
   logic                           mhpmevent_load;
   logic                           mhpmevent_store;
-  logic                           mhpmevent_jump;
+  logic                           mhpmevent_jump/*verilator public*/;
   logic                           mhpmevent_branch;
   logic                           mhpmevent_branch_taken;
   logic                           mhpmevent_compressed;
