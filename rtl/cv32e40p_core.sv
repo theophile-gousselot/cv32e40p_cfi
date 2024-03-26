@@ -1121,41 +1121,41 @@ module cv32e40p_core
   //                       //
   ///////////////////////////
 
-  generate
-    if (PULP_SECURE && USE_PMP) begin : gen_pmp
-      cv32e40p_pmp #(
-          .N_PMP_ENTRIES(N_PMP_ENTRIES)
-      ) pmp_unit_i (
-          .clk  (clk),
-          .rst_n(rst_ni),
-
-          .pmp_privil_mode_i(current_priv_lvl),
-
-          .pmp_addr_i(pmp_addr),
-          .pmp_cfg_i (pmp_cfg),
-
-
-          .data_req_i (data_req_pmp),
-          .data_addr_i(data_addr_pmp),
-          .data_we_i  (data_we_o),
-          .data_gnt_o (data_gnt_pmp),
-
-          .data_req_o    (data_req_o),
-          .data_gnt_i    (data_gnt_i),
-          .data_addr_o   (data_addr_o),
-          .data_err_o    (data_err_pmp),
-          .data_err_ack_i(data_err_ack),
-
-          .instr_req_i (instr_req_pmp),
-          .instr_addr_i(instr_addr_pmp),
-          .instr_gnt_o (instr_gnt_pmp),
-
-          .instr_req_o (instr_req_o),
-          .instr_gnt_i (instr_gnt_i),
-          .instr_addr_o(instr_addr_o),
-          .instr_err_o (instr_err_pmp)
-      );
-    end else begin : gen_no_pmp
+//  generate
+//    if (PULP_SECURE && USE_PMP) begin : gen_pmp
+//      cv32e40p_pmp #(
+//          .N_PMP_ENTRIES(N_PMP_ENTRIES)
+//      ) pmp_unit_i (
+//          .clk  (clk),
+//          .rst_n(rst_ni),
+//
+//          .pmp_privil_mode_i(current_priv_lvl),
+//
+//          .pmp_addr_i(pmp_addr),
+//          .pmp_cfg_i (pmp_cfg),
+//
+//
+//          .data_req_i (data_req_pmp),
+//          .data_addr_i(data_addr_pmp),
+//          .data_we_i  (data_we_o),
+//          .data_gnt_o (data_gnt_pmp),
+//
+//          .data_req_o    (data_req_o),
+//          .data_gnt_i    (data_gnt_i),
+//          .data_addr_o   (data_addr_o),
+//          .data_err_o    (data_err_pmp),
+//          .data_err_ack_i(data_err_ack),
+//
+//          .instr_req_i (instr_req_pmp),
+//          .instr_addr_i(instr_addr_pmp),
+//          .instr_gnt_o (instr_gnt_pmp),
+//
+//          .instr_req_o (instr_req_o),
+//          .instr_gnt_i (instr_gnt_i),
+//          .instr_addr_o(instr_addr_o),
+//          .instr_err_o (instr_err_pmp)
+//      );
+//    end else begin : gen_no_pmp
       assign instr_req_o   = instr_req_pmp;
       assign instr_addr_o  = instr_addr_pmp;
       assign instr_gnt_pmp = instr_gnt_i;
@@ -1165,8 +1165,8 @@ module cv32e40p_core
       assign data_addr_o   = data_addr_pmp;
       assign data_gnt_pmp  = data_gnt_i;
       assign data_err_pmp  = 1'b0;
-    end
-  endgenerate
+//    end
+//  endgenerate
 
 `ifdef CV32E40P_ASSERT_ON
 
