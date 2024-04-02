@@ -19,12 +19,16 @@ module cv32e40p_clock_gate (
     output logic clk_o
 );
 
-  logic clk_en;
+//  logic clk_en;
+//
+//  always_latch begin
+//    if (clk_i == 1'b0) clk_en <= en_i | scan_cg_en_i;
+//  end
+//
+//  assign clk_o = clk_i & clk_en;
 
-  always_latch begin
-    if (clk_i == 1'b0) clk_en <= en_i | scan_cg_en_i;
-  end
 
-  assign clk_o = clk_i & clk_en;
+// Remove latch and LUT on the clock tree
+  assign clk_o = clk_i;
 
 endmodule  // cv32e40p_clock_gate

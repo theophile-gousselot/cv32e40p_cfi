@@ -58,6 +58,9 @@ module cv32e40p_core
 	output logic       mult_multicycle_o,
 	output logic       aligner_update_state_o,
 
+    // Illegal instruction
+    output logic       illegal_insn_dec_o,
+
     // Core control signals to ascon_fsm
 	output logic [1:0] ctrl_transfer_insn_in_id_o,
 	output logic       branch_in_ex_o,
@@ -594,6 +597,7 @@ module cv32e40p_core
       //======// ASCON ENCRYPTION SECTION
       // Core control signals to ascon_datapath
       .ctrl_transfer_insn_in_id_o(ctrl_transfer_insn_in_id_o),
+      .illegal_insn_dec_o(illegal_insn_dec_o),
       //======// END ASCON ENCRYPTION SECTION
 `endif
 
