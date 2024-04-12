@@ -31,8 +31,8 @@ module cv32e40p_alu
 (
     input logic               clk,
     input logic               rst_n,
-    input logic               enable_i,
-    input alu_opcode_e        operator_i,
+    input logic               enable_i/*verilator public*/,
+    input alu_opcode_e        operator_i/*verilator public*/,
     input logic        [31:0] operand_a_i,
     input logic        [31:0] operand_b_i,
     input logic        [31:0] operand_c_i,

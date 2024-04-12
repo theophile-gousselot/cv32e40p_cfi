@@ -148,7 +148,9 @@ module cv32e40p_ex_stage
     input logic lsu_ready_ex_i,  // EX part of LSU is done
     input logic lsu_err_i,
 
+/* verilator lint_off UNOPTFLAT */
     output logic ex_ready_o,  // EX stage ready for new data
+/* verilator lint_on UNOPTFLAT */
     output logic ex_valid_o,  // EX stage gets new data
     input  logic wb_ready_i  // WB stage ready for new data
 );

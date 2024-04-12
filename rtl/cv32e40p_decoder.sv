@@ -28,6 +28,9 @@
 
 module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*; import cv32e40p_fpu_pkg::*;
 #(
+`ifdef CS 
+  parameter CS_LEN,
+`endif
   parameter PULP_XPULP        = 1,              // PULP ISA Extension (including PULP specific CSRs and hardware loop, excluding p.elw)
   parameter PULP_CLUSTER      =  0,
   parameter A_EXTENSION       = 0,
@@ -38,6 +41,9 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
   parameter DEBUG_TRIGGER_EN  = 1
 )
 (
+`ifdef CS 
+  output [CS_LEN-1:0] cs_vector_o,
+`endif
   // singals running to/from controller
   input  logic        deassert_we_i,           // deassert we, we are stalled or not active
 
@@ -77,7 +83,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
 
   // ALU signals
   output logic        alu_en_o,                // ALU enable
-  output alu_opcode_e alu_operator_o, // ALU operation selection
+  output alu_opcode_e alu_operator_o/*verilator public*/, // ALU operation selection
   output logic [2:0]  alu_op_a_mux_sel_o,      // operand a selection: reg value, PC, immediate or zero
   output logic [2:0]  alu_op_b_mux_sel_o,      // operand b selection: reg value or immediate
   output logic [1:0]  alu_op_c_mux_sel_o,      // operand c selection: reg value or jump target
@@ -164,7 +170,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
 
   csr_opcode_e csr_op;
 
-  logic       alu_en;
+  logic       alu_en/*verilator public*/;
   logic       mult_int_en;
   logic       mult_dot_en;
   logic       apu_en;
@@ -178,6 +184,9 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
   // unittypes for latencies to help us decode for APU
   enum logic[1:0] {ADDMUL, DIVSQRT, NONCOMP, CONV} fp_op_group;
 
+`ifdef CS 
+    assign cs_vector_o = {alu_en, alu_operator_o};
+`endif
 
   /////////////////////////////////////////////
   //   ____                     _            //

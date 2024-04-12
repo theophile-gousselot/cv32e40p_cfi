@@ -32,6 +32,9 @@
 module cv32e40p_core
   import cv32e40p_apu_core_pkg::*;
 #(
+`ifdef CS 
+    parameter CS_LEN,
+`endif
     parameter FIFO_DEPTH = 2,
     parameter FIFO_ADDR_DEPTH = 1,
     parameter PULP_XPULP          =  0,                   // PULP ISA Extension (incl. custom CSRs and hardware loop, excl. p.elw)
@@ -71,6 +74,10 @@ module cv32e40p_core
     output logic [31:0] prefetch_instr_rdata_cipher_o,
     input logic [31:0] ascon_instr_rdata_plain_i,
     //======// END ASCON ENCRYPTION SECTION
+`endif
+
+`ifdef CS 
+    output [CS_LEN-1:0] cs_vector_o,
 `endif
 
     input logic pulp_clock_en_i,  // PULP clock enable (only used if PULP_CLUSTER = 1)
@@ -196,7 +203,7 @@ module cv32e40p_core
   logic               lsu_busy;
   logic               apu_busy;
 
-  logic        [31:0] pc_ex;  // PC of last executed branch or p.elw
+  logic        [31:0] pc_ex/*verilator public*/;  // PC of last executed branch or p.elw
 
   // ALU Control
   logic               alu_en_ex;
@@ -574,6 +581,9 @@ module cv32e40p_core
   //                                             //
   /////////////////////////////////////////////////
   cv32e40p_id_stage #(
+`ifdef CS
+      .CS_LEN          (CS_LEN),
+`endif
       .PULP_XPULP      (PULP_XPULP),
       .PULP_CLUSTER    (PULP_CLUSTER),
       .N_HWLP          (N_HWLP),
@@ -601,6 +611,9 @@ module cv32e40p_core
       //======// END ASCON ENCRYPTION SECTION
 `endif
 
+`ifdef CS 
+	  .cs_vector_o(cs_vector_o),
+`endif
       .scan_cg_en_i(scan_cg_en_i),
 
       // Processor Enable
