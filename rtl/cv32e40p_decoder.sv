@@ -185,7 +185,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
   enum logic[1:0] {ADDMUL, DIVSQRT, NONCOMP, CONV} fp_op_group;
 
 `ifdef CS 
-    assign cs_vector_o = {alu_en, alu_operator_o};
+    assign cs_vector_o = {alu_en_o, alu_operator_o};
 `endif
 
   /////////////////////////////////////////////
