@@ -32,7 +32,7 @@ module cv32e40p_id_stage
   import cv32e40p_pkg::*;
   import cv32e40p_apu_core_pkg::*;
 #(
-`ifdef CS 
+`ifdef CS_ID 
     parameter CS_LEN,
 `endif
     parameter PULP_XPULP        =  1,                     // PULP ISA Extension (including PULP specific CSRs and hardware loop, excluding p.elw)
@@ -63,7 +63,7 @@ module cv32e40p_id_stage
     //======// END ASCON ENCRYPTION SECTION
 `endif
 
-`ifdef CS 
+`ifdef CS_ID 
     output [CS_LEN-1:0] cs_vector_o,
 `endif
 
@@ -976,7 +976,7 @@ module cv32e40p_id_stage
   ///////////////////////////////////////////////
 
   cv32e40p_decoder #(
-`ifdef CS
+`ifdef CS_ID
       .CS_LEN          (CS_LEN),
 `endif
       .PULP_XPULP      (PULP_XPULP),
@@ -988,7 +988,7 @@ module cv32e40p_id_stage
       .APU_WOP_CPU     (APU_WOP_CPU),
       .DEBUG_TRIGGER_EN(DEBUG_TRIGGER_EN)
   ) decoder_i (
-`ifdef CS 
+`ifdef CS_ID 
 	  .cs_vector_o(cs_vector_o),
 `endif
       // controller related signals
