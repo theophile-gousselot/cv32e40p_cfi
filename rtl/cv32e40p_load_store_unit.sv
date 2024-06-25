@@ -24,11 +24,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 `timescale 1ns / 1ps
 
+`include "macro_def.sv"
+
 module cv32e40p_load_store_unit #(
     parameter PULP_OBI = 0  // Legacy PULP OBI behavior
 ) (
     input logic clk,
     input logic rst_n,
+
+`ifdef CS_WB_LSU
+    output [`CS_WB_LSU_WIDTH-1:0] cs_vector_o,
+`endif
 
     // output to data memory
     output logic data_req_o,
@@ -116,6 +122,17 @@ module cv32e40p_load_store_unit #(
 
   logic [31:0] rdata_q;
 
+
+
+`ifdef CS_WB_LSU
+`ifdef CS6
+    assign cs_vector_o = {data_type_q};
+`endif
+`ifdef CS7
+    assign cs_vector_o = {data_type_q, data_sign_ext_q, data_we_q};
+`endif
+`endif
+
   ///////////////////////////////// BE generation ////////////////////////////////
   always_comb begin
     case (data_type_ex_i)  // Data type 00 Word, 01 Half word, 11,10 byte
@@ -197,6 +214,13 @@ module cv32e40p_load_store_unit #(
       data_sign_ext_q   <= data_sign_ext_ex_i;
       data_we_q         <= data_we_ex_i;
       data_load_event_q <= data_load_event_ex_i;
+    end else begin
+    // avoid memorization of ia dated control signals
+      data_type_q       <= '0;
+      rdata_offset_q    <= '0;
+      data_sign_ext_q   <= '0;
+      data_we_q         <= 1'b0;
+      data_load_event_q <= 1'b0;
     end
   end
 

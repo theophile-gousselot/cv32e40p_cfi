@@ -28,13 +28,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 `timescale 1ns / 1ps
 
+`include "macro_def.sv"
+
 module cv32e40p_id_stage
   import cv32e40p_pkg::*;
   import cv32e40p_apu_core_pkg::*;
 #(
-`ifdef CS_ID 
-    parameter CS_LEN,
-`endif
     parameter PULP_XPULP        =  1,                     // PULP ISA Extension (including PULP specific CSRs and hardware loop, excluding p.elw)
     parameter PULP_CLUSTER = 0,
     parameter N_HWLP = 2,
@@ -64,7 +63,10 @@ module cv32e40p_id_stage
 `endif
 
 `ifdef CS_ID 
-    output [CS_LEN-1:0] cs_vector_o,
+    output [`CS_ID_WIDTH-1:0] cs_vector_o,
+`endif
+`ifdef CS_EX
+  output logic             dec_alu_en_o,
 `endif
 
     input logic scan_cg_en_i,
@@ -976,9 +978,6 @@ module cv32e40p_id_stage
   ///////////////////////////////////////////////
 
   cv32e40p_decoder #(
-`ifdef CS_ID
-      .CS_LEN          (CS_LEN),
-`endif
       .PULP_XPULP      (PULP_XPULP),
       .PULP_CLUSTER    (PULP_CLUSTER),
       .A_EXTENSION     (A_EXTENSION),
@@ -990,6 +989,9 @@ module cv32e40p_id_stage
   ) decoder_i (
 `ifdef CS_ID 
 	  .cs_vector_o(cs_vector_o),
+`endif
+`ifdef CS_EX
+	  .dec_alu_en_o(dec_alu_en_o),
 `endif
       // controller related signals
       .deassert_we_i(deassert_we),
@@ -1450,7 +1452,7 @@ module cv32e40p_id_stage
       alu_is_clpx_ex_o       <= 1'b0;
       alu_is_subrot_ex_o     <= 1'b0;
 
-      mult_operator_ex_o     <= MUL_MAC32;
+      mult_operator_ex_o     <= MUL_I; // MUL_MAC32 -> MUL_I to be identic with default value in decoder
       mult_operand_a_ex_o    <= '0;
       mult_operand_b_ex_o    <= '0;
       mult_operand_c_ex_o    <= '0;
@@ -1539,6 +1541,8 @@ module cv32e40p_id_stage
           alu_is_clpx_ex_o    <= is_clpx;
           alu_clpx_shift_ex_o <= instr[14:13];
           alu_is_subrot_ex_o  <= is_subrot;
+        end else begin // avoid memorization of ia dated control signals
+          alu_operator_ex_o   <= ALU_SLTU;
         end
 
         mult_en_ex_o <= mult_en;
@@ -1550,6 +1554,9 @@ module cv32e40p_id_stage
           mult_operand_b_ex_o   <= alu_operand_b;
           mult_operand_c_ex_o   <= alu_operand_c;
           mult_imm_ex_o         <= mult_imm_id;
+        end else begin // avoid memorization of ia dated control signals
+          mult_operator_ex_o     <= MUL_I;
+          mult_signed_mode_ex_o  <= 2'b00;
         end
         if (mult_dot_en) begin
           mult_operator_ex_o   <= mult_operator;
@@ -1595,8 +1602,13 @@ module cv32e40p_id_stage
           data_reg_offset_ex_o <= data_reg_offset_id;
           data_load_event_ex_o <= data_load_event_id;
           atop_ex_o            <= atop_id;
-        end else begin
+        end else begin // avoid memorization of ia dated control signals
+          data_we_ex_o         <= 1'b0;
+          data_type_ex_o       <= 2'b0;
+          data_sign_ext_ex_o   <= 2'b0;
+          data_reg_offset_ex_o <= 2'b0;
           data_load_event_ex_o <= 1'b0;
+          atop_ex_o            <= 6'b0;
         end
 
         data_misaligned_ex_o <= 1'b0;
@@ -1631,6 +1643,17 @@ module cv32e40p_id_stage
         mult_en_ex_o         <= 1'b0;
 
         alu_en_ex_o          <= 1'b1;
+
+        // avoid memorization of ia dated control signals
+        data_we_ex_o         <= 1'b0;
+        data_type_ex_o       <= 2'b0;
+        data_sign_ext_ex_o   <= 2'b0;
+        data_reg_offset_ex_o <= 2'b0;
+        data_load_event_ex_o <= 1'b0;
+        atop_ex_o            <= 6'b0;
+        mult_operator_ex_o     <= MUL_I;
+        mult_sel_subword_ex_o  <= 1'b0;
+        mult_signed_mode_ex_o  <= 2'b00;
 
       end else if (csr_access_ex_o) begin
         //In the EX stage there was a CSR access, to avoid multiple

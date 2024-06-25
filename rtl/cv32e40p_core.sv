@@ -30,20 +30,12 @@
 `timescale 1ns / 1ps
 
 
-`ifdef CS_ID 
-`define CS
-`endif
-`ifdef CS_EX
-`define CS
-`endif
+`include "macro_def.sv"
 
 
 module cv32e40p_core
     import cv32e40p_apu_core_pkg::*;
     #(
-        `ifdef CS 
-            parameter CS_LEN,
-        `endif
         parameter FIFO_DEPTH = 2,
         parameter FIFO_ADDR_DEPTH = 1,
         parameter PULP_XPULP          =  0,                   // PULP ISA Extension (incl. custom CSRs and hardware loop, excl. p.elw)
@@ -83,11 +75,14 @@ module cv32e40p_core
             output logic [31:0] prefetch_instr_rdata_cipher_o,
             input logic [31:0] ascon_instr_rdata_plain_i,
             //======// END ASCON ENCRYPTION SECTION
+        `ifdef CS 
+            output [`CS_WIDTH-1:0] cs_vector_o,
+        `endif
+        `ifdef CS_EX
+            output logic             dec_alu_en_o,
+        `endif
         `endif
 
-        `ifdef CS 
-            output [CS_LEN-1:0] cs_vector_o,
-        `endif
 
         input logic pulp_clock_en_i,  // PULP clock enable (only used if PULP_CLUSTER = 1)
         input logic scan_cg_en_i,  // Enable all clock gates for testing
@@ -174,10 +169,19 @@ module cv32e40p_core
 
 
         `ifdef CS_ID
-            logic [7:0] cs_vector_id_s;
+            logic [`CS_ID_WIDTH-1:0] cs_vector_id_s;
         `endif
         `ifdef CS_EX
-            logic [7:0] cs_vector_ex_s;
+            logic [`CS_EX_WIDTH-1:0] cs_vector_ex_s;
+        `endif
+        `ifdef CS_WB
+            logic [`CS_WB_WIDTH-1:0] cs_vector_wb_s;
+        `endif
+        `ifdef CS_WB_EX
+            logic [`CS_WB_EX_WIDTH-1:0] cs_vector_wb_from_ex_s;
+        `endif
+        `ifdef CS_WB_LSU
+            logic [`CS_WB_LSU_WIDTH-1:0] cs_vector_wb_from_lsu_s;
         `endif
 
         // IF/ID signals
@@ -428,18 +432,76 @@ module cv32e40p_core
 
         `ifdef CS_ID
             `ifdef CS_EX
-                assign cs_vector_o = {cs_vector_ex_s, cs_vector_id_s};
+                `ifdef CS_WB
+                    assign cs_vector_o = {cs_vector_wb_s, cs_vector_ex_s, cs_vector_id_s};
+                `else
+                    assign cs_vector_o = {cs_vector_ex_s, cs_vector_id_s};
+                `endif
             `else
-                assign cs_vector_o = {cs_vector_id_s};
+                `ifdef CS_WB
+                    assign cs_vector_o = {cs_vector_wb_s, cs_vector_id_s};
+                `else
+                    assign cs_vector_o = {cs_vector_id_s};
+                `endif
             `endif
         `else
             `ifdef CS_EX
-                assign cs_vector_o = {cs_vector_ex_s};
+                `ifdef CS_WB
+                    assign cs_vector_o = {cs_vector_wb_s, cs_vector_ex_s};
+                `else
+                    assign cs_vector_o = {cs_vector_ex_s};
+                `endif
+            `else
+                `ifdef CS_WB
+                    assign cs_vector_o = {cs_vector_wb_s};
+                `endif
             `endif
         `endif
 
         `ifdef CS_EX
-            assign cs_vector_ex_s = {alu_en_ex, alu_operator_ex};
+        `ifdef CS1
+            assign cs_vector_ex_s = {alu_operator_ex, alu_en_ex};
+        `endif
+        `ifdef CS2
+            assign cs_vector_ex_s = {mult_en_ex, mult_operator_ex, mult_signed_mode_ex};
+        `endif
+        `ifdef CS3
+            assign cs_vector_ex_s = {alu_operator_ex, alu_en_ex, regfile_we_ex};
+        `endif
+        `ifdef CS4
+            assign cs_vector_ex_s = {regfile_we_ex};
+        `endif
+        `ifdef CS5
+            assign cs_vector_ex_s = {data_type_ex, data_req_ex, csr_access_ex, alu_operator_ex, alu_en_ex, regfile_we_ex};
+        `endif
+        `ifdef CS6
+            assign cs_vector_ex_s = {data_type_ex};
+        `endif
+        `ifdef CS7
+            assign cs_vector_ex_s = {data_type_ex, data_sign_ext_ex, data_we_ex, data_req_ex, alu_en_ex, regfile_we_ex};
+        `endif
+        `endif
+
+
+        `ifdef CS_WB
+        `ifdef CS2
+            assign cs_vector_wb_s = {cs_vector_wb_from_ex_s};
+        `endif
+        `ifdef CS3
+            assign cs_vector_wb_s = {cs_vector_wb_from_ex_s};
+        `endif
+        `ifdef CS4
+            assign cs_vector_wb_s = {cs_vector_wb_from_ex_s};
+        `endif
+        `ifdef CS5
+            assign cs_vector_wb_s = {cs_vector_wb_from_ex_s};
+        `endif
+        `ifdef CS6
+            assign cs_vector_wb_s = {cs_vector_wb_from_lsu_s};
+        `endif
+        `ifdef CS7
+            assign cs_vector_wb_s = {cs_vector_wb_from_ex_s, cs_vector_wb_from_lsu_s};
+        `endif
         `endif
 
         // Mux selector for vectored IRQ PC
@@ -612,9 +674,6 @@ module cv32e40p_core
         //                                             //
         /////////////////////////////////////////////////
         cv32e40p_id_stage #(
-            `ifdef CS_ID
-                .CS_LEN          (8),
-            `endif
             .PULP_XPULP      (PULP_XPULP),
             .PULP_CLUSTER    (PULP_CLUSTER),
             .N_HWLP          (N_HWLP),
@@ -640,11 +699,14 @@ module cv32e40p_core
                 .ctrl_transfer_insn_in_id_o(ctrl_transfer_insn_in_id_o),
                 .illegal_insn_dec_o(illegal_insn_dec_o),
                 //======// END ASCON ENCRYPTION SECTION
-            `endif
-
             `ifdef CS_ID 
                 .cs_vector_o(cs_vector_id_s),
             `endif
+            `ifdef CS_EX
+                .dec_alu_en_o(dec_alu_en_o),
+            `endif
+            `endif
+
             .scan_cg_en_i(scan_cg_en_i),
 
             // Processor Enable
@@ -868,6 +930,9 @@ module cv32e40p_core
             .clk  (clk),
             .rst_n(rst_ni),
 
+            `ifdef CS_WB_EX
+                .cs_vector_o(cs_vector_wb_from_ex_s),
+            `endif
             // Alu signals from ID stage
             .alu_en_i        (alu_en_ex),
             .alu_operator_i  (alu_operator_ex),  // from ID/EX pipe registers
@@ -990,6 +1055,10 @@ module cv32e40p_core
         ) load_store_unit_i (
             .clk  (clk),
             .rst_n(rst_ni),
+
+            `ifdef CS_WB_LSU
+                .cs_vector_o(cs_vector_wb_from_lsu_s),
+            `endif
 
             //output to data memory
             .data_req_o    (data_req_pmp),

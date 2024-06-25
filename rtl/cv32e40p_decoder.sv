@@ -26,11 +26,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 `timescale 1ns / 1ps
 
+`include "macro_def.sv"
+
 module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*; import cv32e40p_fpu_pkg::*;
 #(
-`ifdef CS_ID
-  parameter CS_LEN,
-`endif
   parameter PULP_XPULP        = 1,              // PULP ISA Extension (including PULP specific CSRs and hardware loop, excluding p.elw)
   parameter PULP_CLUSTER      =  0,
   parameter A_EXTENSION       = 0,
@@ -42,7 +41,10 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
 )
 (
 `ifdef CS_ID
-  output [CS_LEN-1:0] cs_vector_o,
+  output [`CS_ID_WIDTH-1:0] cs_vector_o,
+`endif
+`ifdef CS_EX
+  output logic             dec_alu_en_o,
 `endif
   // singals running to/from controller
   input  logic        deassert_we_i,           // deassert we, we are stalled or not active
@@ -185,7 +187,30 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
   enum logic[1:0] {ADDMUL, DIVSQRT, NONCOMP, CONV} fp_op_group;
 
 `ifdef CS_ID 
-    assign cs_vector_o = {alu_en_o, alu_operator_o};
+`ifdef CS1
+    assign cs_vector_o = {alu_operator_o, alu_en_o};
+`endif
+`ifdef CS2
+    assign cs_vector_o = {mult_int_en_o, mult_operator_o, mult_signed_mode_o          };
+`endif
+`ifdef CS3
+    assign cs_vector_o = {alu_operator_o, alu_en_o, alu_op_a_mux_sel_o, alu_op_b_mux_sel_o, alu_op_c_mux_sel_o, regfile_mem_we_o};
+`endif
+`ifdef CS4
+    assign cs_vector_o = {rega_used_o, regb_used_o, regc_mux_o, regc_used_o};
+`endif
+`ifdef CS5
+    assign cs_vector_o = {data_type_o, data_req_o, ctrl_transfer_target_mux_sel_o, ctrl_transfer_insn_in_dec_o, ctrl_transfer_insn_in_id_o, csr_status_o, csr_access_o,  alu_bmask_b_mux_sel_o, alu_op_a_mux_sel_o, regfile_mem_we_o};
+`endif
+`ifdef CS6
+    assign cs_vector_o = {data_type_o};
+`endif
+`ifdef CS7
+    assign cs_vector_o = {imm_a_mux_sel_o, imm_b_mux_sel_o, data_type_o, data_sign_extension_o, data_we_o, data_req_o, regfile_mem_we_o};
+`endif
+`endif
+`ifdef CS_EX
+    assign dec_alu_en_o = alu_en;
 `endif
 
   /////////////////////////////////////////////

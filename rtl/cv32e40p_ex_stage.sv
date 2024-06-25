@@ -30,6 +30,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 `timescale 1ns / 1ps
 
+`include "macro_def.sv"
+
 module cv32e40p_ex_stage
   import cv32e40p_pkg::*;
   import cv32e40p_apu_core_pkg::*;
@@ -42,6 +44,10 @@ module cv32e40p_ex_stage
 ) (
     input logic clk,
     input logic rst_n,
+
+`ifdef CS_WB_EX
+    output [`CS_WB_EX_WIDTH-1:0] cs_vector_o,
+`endif
 
     // ALU signals from ID stage
     input alu_opcode_e        alu_operator_i,
@@ -178,6 +184,27 @@ module cv32e40p_ex_stage
   logic        apu_multicycle;
   logic        apu_req;
   logic        apu_gnt;
+
+`ifdef CS_WB_EX 
+`ifdef CS2
+    assign cs_vector_o = {regfile_we_lsu};
+`endif
+`ifdef CS3
+    assign cs_vector_o = {regfile_we_lsu};
+`endif
+`ifdef CS4
+    assign cs_vector_o = {regfile_we_lsu};
+`endif
+`ifdef CS5
+    assign cs_vector_o = {regfile_we_lsu};
+`endif
+`ifdef CS6
+    assign cs_vector_o = {regfile_we_lsu};
+`endif
+`ifdef CS7
+    assign cs_vector_o = {regfile_we_lsu};
+`endif
+`endif
 
   // ALU write port mux
   always_comb begin
