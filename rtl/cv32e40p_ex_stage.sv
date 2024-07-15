@@ -30,7 +30,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 `timescale 1ns / 1ps
 
+`ifdef ENCRYPT
 `include "macro_def.sv"
+`endif
 
 module cv32e40p_ex_stage
   import cv32e40p_pkg::*;
@@ -186,6 +188,9 @@ module cv32e40p_ex_stage
   logic        apu_gnt;
 
 `ifdef CS_WB_EX 
+`ifdef CS1
+    assign cs_vector_o = {regfile_we_lsu};
+`endif
 `ifdef CS2
     assign cs_vector_o = {regfile_we_lsu};
 `endif
@@ -202,6 +207,12 @@ module cv32e40p_ex_stage
     assign cs_vector_o = {regfile_we_lsu};
 `endif
 `ifdef CS7
+    assign cs_vector_o = {regfile_we_lsu};
+`endif
+`ifdef CS8
+    assign cs_vector_o = {regfile_we_lsu};
+`endif
+`ifdef CS9
     assign cs_vector_o = {regfile_we_lsu};
 `endif
 `endif

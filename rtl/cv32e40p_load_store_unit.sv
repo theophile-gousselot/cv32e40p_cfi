@@ -24,7 +24,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 `timescale 1ns / 1ps
 
+`ifdef ENCRYPT
 `include "macro_def.sv"
+`endif
 
 module cv32e40p_load_store_unit #(
     parameter PULP_OBI = 0  // Legacy PULP OBI behavior
@@ -130,6 +132,9 @@ module cv32e40p_load_store_unit #(
 `endif
 `ifdef CS7
     assign cs_vector_o = {data_type_q, data_sign_ext_q, data_we_q};
+`endif
+`ifdef CS8
+    assign cs_vector_o = {data_we_q};
 `endif
 `endif
 

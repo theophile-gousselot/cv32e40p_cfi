@@ -28,7 +28,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 `timescale 1ns / 1ps
 
+`ifdef ENCRYPT
 `include "macro_def.sv"
+`endif
 
 module cv32e40p_id_stage
   import cv32e40p_pkg::*;
@@ -64,9 +66,6 @@ module cv32e40p_id_stage
 
 `ifdef CS_ID 
     output [`CS_ID_WIDTH-1:0] cs_vector_o,
-`endif
-`ifdef CS_EX
-  output logic             dec_alu_en_o,
 `endif
 
     input logic scan_cg_en_i,
@@ -990,9 +989,9 @@ module cv32e40p_id_stage
 `ifdef CS_ID 
 	  .cs_vector_o(cs_vector_o),
 `endif
-`ifdef CS_EX
-	  .dec_alu_en_o(dec_alu_en_o),
-`endif
+//`ifdef CS_EX
+//	  .dec_alu_en_o(dec_alu_en_o),
+//`endif
       // controller related signals
       .deassert_we_i(deassert_we),
 
@@ -1541,7 +1540,7 @@ module cv32e40p_id_stage
           alu_is_clpx_ex_o    <= is_clpx;
           alu_clpx_shift_ex_o <= instr[14:13];
           alu_is_subrot_ex_o  <= is_subrot;
-        end else begin // avoid memorization of ia dated control signals
+        end else begin // avoid memorization of a dated control signals
           alu_operator_ex_o   <= ALU_SLTU;
         end
 

@@ -30,7 +30,9 @@
 `timescale 1ns / 1ps
 
 
+`ifdef ENCRYPT
 `include "macro_def.sv"
+`endif
 
 
 module cv32e40p_core
@@ -77,9 +79,6 @@ module cv32e40p_core
             //======// END ASCON ENCRYPTION SECTION
         `ifdef CS 
             output [`CS_WIDTH-1:0] cs_vector_o,
-        `endif
-        `ifdef CS_EX
-            output logic             dec_alu_en_o,
         `endif
         `endif
 
@@ -469,21 +468,30 @@ module cv32e40p_core
             assign cs_vector_ex_s = {alu_operator_ex, alu_en_ex, regfile_we_ex};
         `endif
         `ifdef CS4
-            assign cs_vector_ex_s = {regfile_we_ex};
+            assign cs_vector_ex_s = {regfile_we_ex, regfile_alu_we_ex};
         `endif
         `ifdef CS5
             assign cs_vector_ex_s = {data_type_ex, data_req_ex, csr_access_ex, alu_operator_ex, alu_en_ex, regfile_we_ex};
         `endif
         `ifdef CS6
-            assign cs_vector_ex_s = {data_type_ex};
+            assign cs_vector_ex_s = {regfile_alu_we_ex};
         `endif
         `ifdef CS7
             assign cs_vector_ex_s = {data_type_ex, data_sign_ext_ex, data_we_ex, data_req_ex, alu_en_ex, regfile_we_ex};
+        `endif
+        `ifdef CS8
+            assign cs_vector_ex_s = {data_we_ex};
+        `endif
+        `ifdef CS9
+            assign cs_vector_ex_s = {alu_operator_ex, alu_en_ex};
         `endif
         `endif
 
 
         `ifdef CS_WB
+        `ifdef CS1
+            assign cs_vector_wb_s = {cs_vector_wb_from_ex_s};
+        `endif
         `ifdef CS2
             assign cs_vector_wb_s = {cs_vector_wb_from_ex_s};
         `endif
@@ -497,10 +505,16 @@ module cv32e40p_core
             assign cs_vector_wb_s = {cs_vector_wb_from_ex_s};
         `endif
         `ifdef CS6
-            assign cs_vector_wb_s = {cs_vector_wb_from_lsu_s};
+            assign cs_vector_wb_s = {cs_vector_wb_from_ex_s};
         `endif
         `ifdef CS7
             assign cs_vector_wb_s = {cs_vector_wb_from_ex_s, cs_vector_wb_from_lsu_s};
+        `endif
+        `ifdef CS8
+            assign cs_vector_wb_s = {cs_vector_wb_from_lsu_s};
+        `endif
+        `ifdef CS9
+            assign cs_vector_wb_s = {cs_vector_wb_from_ex_s};
         `endif
         `endif
 
@@ -702,9 +716,9 @@ module cv32e40p_core
             `ifdef CS_ID 
                 .cs_vector_o(cs_vector_id_s),
             `endif
-            `ifdef CS_EX
-                .dec_alu_en_o(dec_alu_en_o),
-            `endif
+//            `ifdef CS_EX
+//                .dec_alu_en_o(dec_alu_en_o),
+//            `endif
             `endif
 
             .scan_cg_en_i(scan_cg_en_i),
