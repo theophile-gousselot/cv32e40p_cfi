@@ -35,7 +35,7 @@ module cv32e40p_load_store_unit #(
     input logic rst_n,
 
 `ifdef CS_WB_LSU
-    output [`CS_WB_LSU_WIDTH-1:0] cs_vector_o,
+    output [`CS_WB_LSU_WIDTH-1:0] cs_vector_wb_from_lsu_o,
 `endif
 
     // output to data memory
@@ -127,15 +127,7 @@ module cv32e40p_load_store_unit #(
 
 
 `ifdef CS_WB_LSU
-`ifdef CS6
-    assign cs_vector_o = {data_type_q};
-`endif
-`ifdef CS7
-    assign cs_vector_o = {data_type_q, data_sign_ext_q, data_we_q};
-`endif
-`ifdef CS8
-    assign cs_vector_o = {data_we_q};
-`endif
+`include "wb_from_lsu_cs_assign.sv"
 `endif
 
   ///////////////////////////////// BE generation ////////////////////////////////

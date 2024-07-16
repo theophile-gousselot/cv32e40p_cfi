@@ -48,7 +48,7 @@ module cv32e40p_ex_stage
     input logic rst_n,
 
 `ifdef CS_WB_EX
-    output [`CS_WB_EX_WIDTH-1:0] cs_vector_o,
+    output [`CS_WB_EX_WIDTH-1:0] cs_vector_wb_from_ex_o,
 `endif
 
     // ALU signals from ID stage
@@ -188,33 +188,7 @@ module cv32e40p_ex_stage
   logic        apu_gnt;
 
 `ifdef CS_WB_EX 
-`ifdef CS1
-    assign cs_vector_o = {regfile_we_lsu};
-`endif
-`ifdef CS2
-    assign cs_vector_o = {regfile_we_lsu};
-`endif
-`ifdef CS3
-    assign cs_vector_o = {regfile_we_lsu};
-`endif
-`ifdef CS4
-    assign cs_vector_o = {regfile_we_lsu};
-`endif
-`ifdef CS5
-    assign cs_vector_o = {regfile_we_lsu};
-`endif
-`ifdef CS6
-    assign cs_vector_o = {regfile_we_lsu};
-`endif
-`ifdef CS7
-    assign cs_vector_o = {regfile_we_lsu};
-`endif
-`ifdef CS8
-    assign cs_vector_o = {regfile_we_lsu};
-`endif
-`ifdef CS9
-    assign cs_vector_o = {regfile_we_lsu};
-`endif
+`include "wb_from_ex_cs_assign.sv"
 `endif
 
   // ALU write port mux

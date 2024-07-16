@@ -458,64 +458,12 @@ module cv32e40p_core
         `endif
 
         `ifdef CS_EX
-        `ifdef CS1
-            assign cs_vector_ex_s = {alu_operator_ex, alu_en_ex};
-        `endif
-        `ifdef CS2
-            assign cs_vector_ex_s = {mult_en_ex, mult_operator_ex, mult_signed_mode_ex};
-        `endif
-        `ifdef CS3
-            assign cs_vector_ex_s = {alu_operator_ex, alu_en_ex, regfile_we_ex};
-        `endif
-        `ifdef CS4
-            assign cs_vector_ex_s = {regfile_we_ex, regfile_alu_we_ex};
-        `endif
-        `ifdef CS5
-            assign cs_vector_ex_s = {data_type_ex, data_req_ex, csr_access_ex, alu_operator_ex, alu_en_ex, regfile_we_ex};
-        `endif
-        `ifdef CS6
-            assign cs_vector_ex_s = {regfile_alu_we_ex};
-        `endif
-        `ifdef CS7
-            assign cs_vector_ex_s = {data_type_ex, data_sign_ext_ex, data_we_ex, data_req_ex, alu_en_ex, regfile_we_ex};
-        `endif
-        `ifdef CS8
-            assign cs_vector_ex_s = {data_we_ex};
-        `endif
-        `ifdef CS9
-            assign cs_vector_ex_s = {alu_operator_ex, alu_en_ex};
-        `endif
+        `include "ex_cs_assign.sv"
         `endif
 
 
         `ifdef CS_WB
-        `ifdef CS1
-            assign cs_vector_wb_s = {cs_vector_wb_from_ex_s};
-        `endif
-        `ifdef CS2
-            assign cs_vector_wb_s = {cs_vector_wb_from_ex_s};
-        `endif
-        `ifdef CS3
-            assign cs_vector_wb_s = {cs_vector_wb_from_ex_s};
-        `endif
-        `ifdef CS4
-            assign cs_vector_wb_s = {cs_vector_wb_from_ex_s};
-        `endif
-        `ifdef CS5
-            assign cs_vector_wb_s = {cs_vector_wb_from_ex_s};
-        `endif
-        `ifdef CS6
-            assign cs_vector_wb_s = {cs_vector_wb_from_ex_s};
-        `endif
-        `ifdef CS7
-            assign cs_vector_wb_s = {cs_vector_wb_from_ex_s, cs_vector_wb_from_lsu_s};
-        `endif
-        `ifdef CS8
-            assign cs_vector_wb_s = {cs_vector_wb_from_lsu_s};
-        `endif
-        `ifdef CS9
-            assign cs_vector_wb_s = {cs_vector_wb_from_ex_s};
-        `endif
+        `include "wb_merge_cs_assign.sv"
         `endif
 
         // Mux selector for vectored IRQ PC
@@ -714,7 +662,7 @@ module cv32e40p_core
                 .illegal_insn_dec_o(illegal_insn_dec_o),
                 //======// END ASCON ENCRYPTION SECTION
             `ifdef CS_ID 
-                .cs_vector_o(cs_vector_id_s),
+                .cs_vector_id_o(cs_vector_id_s),
             `endif
 //            `ifdef CS_EX
 //                .dec_alu_en_o(dec_alu_en_o),
@@ -945,7 +893,7 @@ module cv32e40p_core
             .rst_n(rst_ni),
 
             `ifdef CS_WB_EX
-                .cs_vector_o(cs_vector_wb_from_ex_s),
+                .cs_vector_wb_from_ex_o(cs_vector_wb_from_ex_s),
             `endif
             // Alu signals from ID stage
             .alu_en_i        (alu_en_ex),
@@ -1071,7 +1019,7 @@ module cv32e40p_core
             .rst_n(rst_ni),
 
             `ifdef CS_WB_LSU
-                .cs_vector_o(cs_vector_wb_from_lsu_s),
+                .cs_vector_wb_from_lsu_o(cs_vector_wb_from_lsu_s),
             `endif
 
             //output to data memory

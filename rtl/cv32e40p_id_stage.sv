@@ -65,7 +65,7 @@ module cv32e40p_id_stage
 `endif
 
 `ifdef CS_ID 
-    output [`CS_ID_WIDTH-1:0] cs_vector_o,
+    output [`CS_ID_WIDTH-1:0] cs_vector_id_o,
 `endif
 
     input logic scan_cg_en_i,
@@ -987,7 +987,7 @@ module cv32e40p_id_stage
       .DEBUG_TRIGGER_EN(DEBUG_TRIGGER_EN)
   ) decoder_i (
 `ifdef CS_ID 
-	  .cs_vector_o(cs_vector_o),
+	  .cs_vector_id_o(cs_vector_id_o),
 `endif
 //`ifdef CS_EX
 //	  .dec_alu_en_o(dec_alu_en_o),
