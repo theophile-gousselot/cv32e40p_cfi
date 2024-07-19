@@ -268,6 +268,13 @@ module cv32e40p_id_stage
     input logic [31:0] mcounteren_i
 );
 
+`ifdef CS_ID_DECODER
+  logic [`CS_ID_DECODER_WIDTH-1:0] cs_vector_id_from_decoder_s;
+`endif
+`ifdef CS_ID_ID
+  logic [`CS_ID_ID_WIDTH-1:0] cs_vector_id_from_id_s;
+`endif
+
   // Source/Destination register instruction index
   localparam REG_S1_MSB = 19;
   localparam REG_S1_LSB = 15;
@@ -506,6 +513,17 @@ module cv32e40p_id_stage
   assign illegal_insn_dec_o = illegal_insn_dec;
   //======// END ASCON ENCRYPTION SECTION
 `endif
+
+
+`ifdef CS_ID_ID
+`include "id_from_id_cs_assign.sv"
+`endif
+
+
+`ifdef CS_ID
+`include "id_merge_cs_assign.sv"
+`endif
+
 
 
 
@@ -986,8 +1004,8 @@ module cv32e40p_id_stage
       .APU_WOP_CPU     (APU_WOP_CPU),
       .DEBUG_TRIGGER_EN(DEBUG_TRIGGER_EN)
   ) decoder_i (
-`ifdef CS_ID 
-	  .cs_vector_id_o(cs_vector_id_o),
+`ifdef CS_ID_DECODER
+	  .cs_vector_id_from_decoder_o(cs_vector_id_from_decoder_s),
 `endif
 //`ifdef CS_EX
 //	  .dec_alu_en_o(dec_alu_en_o),

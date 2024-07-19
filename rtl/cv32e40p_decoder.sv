@@ -42,8 +42,8 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
   parameter DEBUG_TRIGGER_EN  = 1
 )
 (
-`ifdef CS_ID
-  output [`CS_ID_WIDTH-1:0] cs_vector_id_o,
+`ifdef CS_ID_DECODER
+  output [`CS_ID_DECODER_WIDTH-1:0] cs_vector_id_from_decoder_o,
 `endif
 //`ifdef CS_EX
 //  output logic             dec_alu_en_o,
@@ -188,8 +188,8 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
   // unittypes for latencies to help us decode for APU
   enum logic[1:0] {ADDMUL, DIVSQRT, NONCOMP, CONV} fp_op_group;
 
-`ifdef CS_ID 
-`include "id_cs_assign.sv"
+`ifdef CS_ID_DECODER
+`include "id_from_decoder_cs_assign.sv"
 `endif
 
   /////////////////////////////////////////////
