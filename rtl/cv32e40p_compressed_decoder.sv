@@ -45,6 +45,7 @@ module cv32e40p_compressed_decoder #(
   //                      |_|                                                                         //
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
   always_comb begin
     illegal_instr_o = 1'b0;
     instr_o         = '0;
@@ -591,6 +592,10 @@ module cv32e40p_compressed_decoder #(
       end
     endcase
   end
+ 
+// COMPRESS INSTRUCTION NOT SUPPORTED
+// TODO: consider compress instructions as illegal
+// assign illegal_instr_o = (instr_i[1:0] != 2'b11);
 
   assign is_compressed_o = (instr_i[1:0] != 2'b11);
 
