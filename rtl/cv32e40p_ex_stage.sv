@@ -412,6 +412,8 @@ module cv32e40p_ex_stage
         regfile_we_lsu <= regfile_we_i & ~lsu_err_i;
         if (regfile_we_i & ~lsu_err_i) begin
           regfile_waddr_lsu <= regfile_waddr_i;
+        end else begin
+          regfile_waddr_lsu <= '0; // avoid memorization of ia dated control signals
         end
       end else if (wb_ready_i) begin
         // we are ready for a new instruction, but there is none available,

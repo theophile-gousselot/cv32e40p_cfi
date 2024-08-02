@@ -506,6 +506,8 @@ module cv32e40p_id_stage
   logic minstret;
   logic perf_pipeline_stall;
 
+  logic branch_in_ex_id;
+
 `ifdef ENCRYPT
   //======// ASCON ENCRYPTION SECTION
   // Core control signals to ascon_datapath
@@ -1445,6 +1447,8 @@ module cv32e40p_id_stage
   endgenerate
 
 
+  assign branch_in_ex_id = ctrl_transfer_insn_in_id == BRANCH_COND;
+
   /////////////////////////////////////////////////////////////////////////////////
   //   ___ ____        _______  __  ____ ___ ____  _____ _     ___ _   _ _____   //
   //  |_ _|  _ \      | ____\ \/ / |  _ \_ _|  _ \| ____| |   |_ _| \ | | ____|  //
@@ -1599,11 +1603,15 @@ module cv32e40p_id_stage
         regfile_we_ex_o <= regfile_we_id;
         if (regfile_we_id) begin
           regfile_waddr_ex_o <= regfile_waddr_id;
+        end else begin // avoid memorization of ia dated control signals
+          regfile_waddr_ex_o <= '0;
         end
 
         regfile_alu_we_ex_o <= regfile_alu_we_id;
         if (regfile_alu_we_id) begin
           regfile_alu_waddr_ex_o <= regfile_alu_waddr_id;
+        end else begin // avoid memorization of ia dated control signals
+          regfile_alu_waddr_ex_o <= '0;
         end
 
         prepost_useincr_ex_o <= prepost_useincr;
@@ -1671,6 +1679,7 @@ module cv32e40p_id_stage
         mult_operator_ex_o     <= MUL_I;
         mult_sel_subword_ex_o  <= 1'b0;
         mult_signed_mode_ex_o  <= 2'b00;
+        regfile_waddr_ex_o <= '0;
 
       end else if (csr_access_ex_o) begin
         //In the EX stage there was a CSR access, to avoid multiple
