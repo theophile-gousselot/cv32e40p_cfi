@@ -1,0 +1,12 @@
+alu_clpx_shift no usefull but value very
+
+
+
+alu_operand_a
+alu_operand_b
+alu_operand_c
+
+
+branch_in : usefull to determine if ex_ready
+regfile_alu_waddr 
+regfile_waddr regfile_mem_waddr 
