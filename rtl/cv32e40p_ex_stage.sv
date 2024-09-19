@@ -31,7 +31,7 @@
 `timescale 1ns / 1ps
 
 `ifdef ENCRYPT
-`include "macro_def.sv"
+`include "macro_def.vh"
 `endif
 
 module cv32e40p_ex_stage

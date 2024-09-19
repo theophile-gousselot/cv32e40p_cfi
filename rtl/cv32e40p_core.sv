@@ -31,7 +31,7 @@
 
 
 `ifdef ENCRYPT
-`include "macro_def.sv"
+`include "macro_def.vh"
 `endif
 
 
