@@ -528,6 +528,16 @@ module cv32e40p_id_stage
 
 
 
+//    always_ff @(posedge clk, negedge rst_n) begin
+//        if (pc_id_i == 32'h160) begin
+//            force alu_operator = 7'h08;
+//        end
+//        if (pc_id_i == 32'h164) begin
+//            release alu_operator;
+//        end
+//    end
+
+
 
   assign instr = instr_rdata_i;
 
