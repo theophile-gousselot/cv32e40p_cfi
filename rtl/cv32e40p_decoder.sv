@@ -27,7 +27,7 @@
 `timescale 1ns / 1ps
 
 `ifdef ENCRYPT
-`include "macro_def.sv"
+`include "macro_def.vh"
 `endif
 
 module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*; import cv32e40p_fpu_pkg::*;
