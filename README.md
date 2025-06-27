@@ -8,9 +8,10 @@ when it has been contributed to [OpenHW Group](https://www.openhwgroup.org/).
 All necessary documentation is available [here](https://github.com/openhwgroup/cv32e40p/).
 
 
-# Protected version
+## Protected version
 
 Some macros (`ENCRYPT`, `CS`, `CS_ID`, ...) able and disable protections.
+You can explore SystemVerilog description files in `./rtl` folder.
 
 
 # Getting Started
